@@ -1,106 +1,173 @@
+
 import React from 'react';
-import { Flame, Trophy, Zap, Target, Award } from 'lucide-react';
-import { UserProfile } from '../types';
+import { Flame, Dumbbell, Utensils, Footprints, Play, MessageSquare, Plus, Zap } from 'lucide-react';
+import { UserProfile, AppTab } from '../types';
 
 interface DashboardProps {
   user: UserProfile;
+  onNavigate: (tab: AppTab) => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ user, onNavigate }) => {
+  // Mock Data
+  const dailyProgress = 78; // %
+  const caloriesLeft = 850;
+  const steps = 8432;
+  const todayWorkout = "Push A";
+  const quote = "Consistency is the bridge between goals and accomplishment.";
+
   return (
-    <div className="p-6 space-y-8 pb-32 animate-fade-in">
-      <header className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-zinc-400">
-            Hello, {user.name}
-          </h1>
-          <p className="text-zinc-400 text-sm">Let's crush today's goals.</p>
-        </div>
-        <div className="bg-zinc-800/50 p-2 rounded-full border border-white/5">
-          <img 
-            src={`https://picsum.photos/seed/${user.name}/100/100`} 
-            alt="Profile" 
-            className="w-10 h-10 rounded-full object-cover"
-          />
-        </div>
-      </header>
-
-      {/* Streak & XP Cards */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-gradient-to-br from-orange-500/20 to-red-600/20 border border-orange-500/30 rounded-3xl p-5 flex flex-col items-center justify-center space-y-2 backdrop-blur-sm relative overflow-hidden group">
-          <div className="absolute inset-0 bg-orange-500/10 blur-xl group-hover:bg-orange-500/20 transition-all duration-500"></div>
-          <Flame className="text-orange-500 w-8 h-8 drop-shadow-[0_0_10px_rgba(249,115,22,0.5)]" />
-          <div className="text-center z-10">
-            <span className="text-3xl font-black text-white">{user.streak}</span>
-            <p className="text-xs text-orange-200 font-medium">Day Streak</p>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-primary/20 to-secondary/20 border border-primary/30 rounded-3xl p-5 flex flex-col items-center justify-center space-y-2 backdrop-blur-sm relative overflow-hidden">
-          <Zap className="text-primary w-8 h-8 drop-shadow-[0_0_10px_rgba(217,249,157,0.5)]" />
-          <div className="text-center z-10">
-            <span className="text-3xl font-black text-white">{user.xp}</span>
-            <p className="text-xs text-lime-200 font-medium">Total XP</p>
-          </div>
-        </div>
+    <div className="p-6 space-y-6 pb-32 animate-fade-in min-h-screen">
+      
+      {/* Header */}
+      <div className="flex justify-between items-center px-1 pt-2">
+         <div>
+            <h1 className="text-2xl font-bold text-white">Hello, {user.name}</h1>
+            <p className="text-zinc-500 text-xs font-medium">Ready to crush today?</p>
+         </div>
+         <div className="w-10 h-10 rounded-full bg-zinc-800 border border-white/10 overflow-hidden">
+            <img src={`https://picsum.photos/seed/${user.name}/200`} alt="Profile" className="w-full h-full object-cover" />
+         </div>
       </div>
 
-      {/* Level Progress */}
-      <div className="bg-zinc-900/80 border border-white/5 rounded-3xl p-6 relative overflow-hidden">
-        <div className="flex justify-between items-end mb-4">
-            <div>
-                <p className="text-xs text-zinc-500 uppercase tracking-widest font-bold">Current Level</p>
-                <h3 className="text-xl font-bold text-white mt-1 flex items-center gap-2">
-                    <Trophy className="w-5 h-5 text-yellow-500" />
-                    {user.levelTitle}
-                </h3>
-            </div>
-            <span className="text-sm font-mono text-zinc-400">1,250 / 2,000 XP</span>
-        </div>
-        <div className="h-2 bg-zinc-800 rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-primary to-secondary w-[62.5%] shadow-[0_0_15px_rgba(217,249,157,0.4)]"></div>
-        </div>
-      </div>
-
-      {/* Today's Quests */}
-      <div>
-        <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <Target className="w-5 h-5 text-secondary" />
-            Daily Quests
-        </h2>
-        <div className="space-y-3">
-            {[
-                { title: 'Complete Morning Workout', xp: 50, done: true },
-                { title: 'Drink 2L Water', xp: 30, done: false },
-                { title: 'Log Lunch Meal', xp: 20, done: false }
-            ].map((quest, idx) => (
-                <div key={idx} className="flex items-center justify-between p-4 bg-zinc-900/50 border border-white/5 rounded-2xl">
-                    <div className="flex items-center gap-3">
-                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${quest.done ? 'bg-primary border-primary' : 'border-zinc-600'}`}>
-                            {quest.done && <span className="text-black text-xs font-bold">✓</span>}
+      {/* 1. Streak Management (Hero Section) */}
+      <div className="bg-gradient-to-br from-zinc-900 via-zinc-900 to-black border border-orange-500/20 rounded-3xl p-6 relative overflow-hidden group shadow-lg shadow-orange-900/5">
+         {/* Background Effects */}
+         <div className="absolute top-0 right-0 w-48 h-48 bg-orange-500/10 blur-[60px] rounded-full pointer-events-none group-hover:bg-orange-500/15 transition-colors duration-500"></div>
+         
+         <div className="relative z-10">
+             <div className="flex justify-between items-start mb-5">
+                 <div className="flex flex-col gap-1">
+                     <div className="flex items-center gap-2">
+                        <div className="p-1.5 bg-orange-500/10 rounded-lg">
+                            <Flame className="w-5 h-5 text-orange-500 fill-orange-500 animate-pulse" />
                         </div>
-                        <span className={`text-sm ${quest.done ? 'text-zinc-500 line-through' : 'text-zinc-200'}`}>{quest.title}</span>
-                    </div>
-                    <span className="text-xs font-bold text-yellow-500 bg-yellow-500/10 px-2 py-1 rounded-lg">+{quest.xp} XP</span>
-                </div>
-            ))}
+                        <span className="text-xs font-bold text-orange-400 uppercase tracking-wider">On Fire</span>
+                     </div>
+                     <span className="text-5xl font-black text-white tracking-tighter mt-1">{user.streak} <span className="text-lg text-zinc-500 font-bold">Days</span></span>
+                 </div>
+                 
+                 {/* Level Badge */}
+                 <div className="bg-zinc-800/80 backdrop-blur-md border border-white/5 px-3 py-2 rounded-xl text-right min-w-[80px]">
+                     <span className="block text-[10px] text-zinc-500 font-bold uppercase mb-0.5">{user.level}</span>
+                     <span className="text-sm font-bold text-white block">{user.xp} XP</span>
+                 </div>
+             </div>
+
+             {/* XP Progress Bar */}
+             <div className="mb-5">
+                 <div className="flex justify-between text-[10px] mb-1.5 opacity-60">
+                     <span className="font-medium text-zinc-400">Progress to Next Level</span>
+                     <span className="font-bold text-zinc-300">62%</span>
+                 </div>
+                 <div className="h-2 w-full bg-zinc-800 rounded-full overflow-hidden border border-white/5">
+                    <div 
+                        className="h-full bg-gradient-to-r from-orange-500 to-red-500 rounded-full shadow-[0_0_12px_rgba(249,115,22,0.6)]" 
+                        style={{ width: `${(user.xp / 2000) * 100}%` }}
+                    ></div>
+                 </div>
+             </div>
+
+             {/* Motivation Quote */}
+             <div className="bg-orange-500/5 border border-orange-500/10 rounded-xl p-3 flex items-center justify-center">
+                 <p className="text-xs text-orange-200/90 italic text-center font-medium">
+                    "{quote}"
+                 </p>
+             </div>
+         </div>
+      </div>
+
+      {/* 2. Highlight Card (Activity Ring) */}
+      <div className="bg-zinc-900/50 border border-white/5 rounded-[2.5rem] p-8 relative overflow-hidden flex flex-col items-center justify-center min-h-[280px]">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-primary/5 blur-[80px] rounded-full pointer-events-none"></div>
+        
+        <div className="relative w-48 h-48 flex items-center justify-center">
+            <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="42" stroke="#27272a" strokeWidth="6" fill="transparent" strokeLinecap="round" />
+                <circle 
+                    cx="50" 
+                    cy="50" 
+                    r="42" 
+                    stroke="currentColor" 
+                    strokeWidth="6" 
+                    fill="transparent" 
+                    className="text-primary transition-all duration-1000 ease-out"
+                    strokeDasharray="263.89" 
+                    strokeDashoffset={263.89 - (263.89 * dailyProgress) / 100}
+                    strokeLinecap="round"
+                />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-5xl font-black text-white tracking-tighter">{dailyProgress}%</span>
+                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mt-1">Daily Load</span>
+            </div>
         </div>
       </div>
 
-       {/* Achievements */}
-       <div>
-        <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-            <Award className="w-5 h-5 text-purple-400" />
-            Recent Badges
-        </h2>
-        <div className="flex gap-4 overflow-x-auto no-scrollbar pb-4">
-            {[1, 2, 3].map((i) => (
-                <div key={i} className="min-w-[100px] h-[120px] bg-zinc-900/50 border border-white/5 rounded-2xl flex flex-col items-center justify-center gap-2 p-2">
-                    <img src={`https://picsum.photos/seed/badge${i}/80/80`} className="w-12 h-12 rounded-full border-2 border-purple-500/30" alt="badge" />
-                    <span className="text-[10px] text-center text-zinc-400">Early Riser</span>
-                </div>
-            ))}
-        </div>
+      {/* 3. Three Simple Tiles */}
+      <div className="grid grid-cols-3 gap-3 h-40">
+         {/* Workout Tile */}
+         <button className="h-full bg-zinc-900/50 border border-white/5 rounded-3xl p-4 flex flex-col justify-between items-start hover:bg-zinc-800 hover:border-white/10 transition-all group relative overflow-hidden text-left">
+             <div className="p-3 bg-blue-500/10 rounded-2xl text-blue-400 group-hover:scale-110 transition-transform duration-300">
+                <Dumbbell size={20} />
+             </div>
+             <div>
+                 <p className="text-[10px] text-zinc-500 font-bold uppercase mb-1">Workout</p>
+                 <p className="text-sm font-bold text-white leading-tight">{todayWorkout}</p>
+             </div>
+             <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <Play size={14} className="fill-white text-white" />
+             </div>
+         </button>
+
+         {/* Diet Tile */}
+         <div className="h-full bg-zinc-900/50 border border-white/5 rounded-3xl p-4 flex flex-col justify-between items-start">
+             <div className="p-3 bg-green-500/10 rounded-2xl text-green-400">
+                <Utensils size={20} />
+             </div>
+             <div>
+                 <p className="text-[10px] text-zinc-500 font-bold uppercase mb-1">Calories</p>
+                 <p className="text-lg font-bold text-white tracking-tight">{caloriesLeft}</p>
+             </div>
+         </div>
+
+         {/* Activity Tile */}
+         <div className="h-full bg-zinc-900/50 border border-white/5 rounded-3xl p-4 flex flex-col justify-between items-start">
+             <div className="p-3 bg-purple-500/10 rounded-2xl text-purple-400">
+                <Footprints size={20} />
+             </div>
+             <div>
+                 <p className="text-[10px] text-zinc-500 font-bold uppercase mb-1">Steps</p>
+                 <p className="text-lg font-bold text-white tracking-tight">{steps.toLocaleString()}</p>
+             </div>
+         </div>
+      </div>
+
+      {/* 4. Quick Actions */}
+      <div className="flex gap-3">
+          <button 
+            onClick={() => onNavigate(AppTab.CHAT)}
+            className="flex-1 bg-zinc-900/50 border border-white/5 py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-zinc-800 transition-colors text-xs font-bold text-zinc-300 group"
+          >
+              <MessageSquare size={16} className="text-pink-500 group-hover:scale-110 transition-transform" />
+              AI Coach
+          </button>
+          
+          <button 
+            onClick={() => onNavigate(AppTab.WORKOUT)}
+            className="flex-1 bg-zinc-900/50 border border-white/5 py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-zinc-800 transition-colors text-xs font-bold text-zinc-300 group"
+          >
+              <Zap size={16} className="text-blue-500 group-hover:scale-110 transition-transform" />
+              Gen Workout
+          </button>
+          
+          <button 
+            onClick={() => onNavigate(AppTab.DIET)}
+            className="flex-1 bg-zinc-900/50 border border-white/5 py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-zinc-800 transition-colors text-xs font-bold text-zinc-300 group"
+          >
+              <Plus size={16} className="text-green-500 group-hover:scale-110 transition-transform" />
+              Add Meal
+          </button>
       </div>
     </div>
   );

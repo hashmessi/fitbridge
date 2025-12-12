@@ -2,11 +2,14 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { WorkoutPlan, DietPlan } from "../types";
 
-const apiKey = process.env.API_KEY || '';
-const ai = new GoogleGenAI({ apiKey });
+// Helper to get a fresh AI instance with the current API key
+const getAI = () => {
+  return new GoogleGenAI({ apiKey: process.env.API_KEY });
+};
 
 export const generateWorkout = async (userDescription: string): Promise<WorkoutPlan | null> => {
   try {
+    const ai = getAI();
     // Switch to gemini-2.5-flash for better JSON stability and to avoid 500 errors
     const model = 'gemini-2.5-flash';
     const response = await ai.models.generateContent({
@@ -79,6 +82,7 @@ export const generateWorkout = async (userDescription: string): Promise<WorkoutP
 
 export const generateDiet = async (userDescription: string): Promise<DietPlan | null> => {
   try {
+    const ai = getAI();
     const model = 'gemini-3-pro-preview';
     const response = await ai.models.generateContent({
       model,
@@ -152,6 +156,7 @@ export const generateDiet = async (userDescription: string): Promise<DietPlan | 
 };
 
 export const chatWithThinking = async (history: {role: string, parts: {text: string}[]}[], newMessage: string) => {
+  const ai = getAI();
   // We use the Thinking model for the chat as requested
   const model = 'gemini-3-pro-preview'; 
   

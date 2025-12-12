@@ -1,12 +1,35 @@
-import React, { useState } from 'react';
-import { Utensils, RefreshCw, ChefHat, Leaf, Info, Loader2 } from 'lucide-react';
+
+import React, { useState, useEffect } from 'react';
+import { Utensils, RefreshCw, ChefHat, Leaf, Info, Loader2, Plus, X, Calendar } from 'lucide-react';
 import { generateDiet } from '../services/geminiService';
 import { DietPlan, Meal } from '../types';
+
+interface ManualMeal {
+  id: string;
+  name: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fats: number;
+  timestamp: number;
+}
 
 export const DietTab: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [dietPlan, setDietPlan] = useState<DietPlan | null>(null);
     const [preferences, setPreferences] = useState('');
+
+    // Manual Meal State
+    const [showManualForm, setShowManualForm] = useState(false);
+    const [manualMeals, setManualMeals] = useState<ManualMeal[]>([]);
+    const [manualForm, setManualForm] = useState({ name: '', calories: '', protein: '', carbs: '', fats: '' });
+
+    useEffect(() => {
+        const savedMeals = localStorage.getItem('fitbridge_manual_meals');
+        if (savedMeals) {
+            setManualMeals(JSON.parse(savedMeals));
+        }
+    }, []);
 
     const handleGenerate = async () => {
         if (!preferences) return;
@@ -14,6 +37,33 @@ export const DietTab: React.FC = () => {
         const plan = await generateDiet(preferences);
         setDietPlan(plan);
         setLoading(false);
+    };
+
+    const handleSaveManualMeal = () => {
+        if (!manualForm.name || !manualForm.calories) return;
+
+        const newMeal: ManualMeal = {
+            id: Date.now().toString(),
+            name: manualForm.name,
+            calories: Number(manualForm.calories),
+            protein: Number(manualForm.protein) || 0,
+            carbs: Number(manualForm.carbs) || 0,
+            fats: Number(manualForm.fats) || 0,
+            timestamp: Date.now()
+        };
+
+        const updatedMeals = [newMeal, ...manualMeals];
+        setManualMeals(updatedMeals);
+        localStorage.setItem('fitbridge_manual_meals', JSON.stringify(updatedMeals));
+
+        setManualForm({ name: '', calories: '', protein: '', carbs: '', fats: '' });
+        setShowManualForm(false);
+    };
+
+    const deleteMeal = (id: string) => {
+        const updated = manualMeals.filter(m => m.id !== id);
+        setManualMeals(updated);
+        localStorage.setItem('fitbridge_manual_meals', JSON.stringify(updated));
     };
 
     const MealCard = ({ title, meal, colorClass }: { title: string, meal: Meal, colorClass: string }) => (
@@ -39,14 +89,114 @@ export const DietTab: React.FC = () => {
         </div>
     );
 
+  if (showManualForm) {
+      return (
+          <div className="p-6 pb-32 min-h-screen animate-fade-in flex flex-col justify-center">
+              <div className="relative bg-zinc-900 border border-white/5 rounded-[2rem] p-8 shadow-2xl">
+                   {/* Container for background effects */}
+                   <div className="absolute inset-0 rounded-[2rem] overflow-hidden pointer-events-none">
+                       <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/10 blur-[50px]"></div>
+                   </div>
+
+                  <div className="relative z-10">
+                      <div className="flex items-center justify-between mb-8">
+                        <h1 className="text-2xl font-bold text-white tracking-tight">Log Meal</h1>
+                        <button 
+                            onClick={() => setShowManualForm(false)}
+                            className="p-2 bg-zinc-800 rounded-full text-zinc-400 hover:text-white transition-colors"
+                        >
+                            <X size={20} />
+                        </button>
+                      </div>
+
+                      <div className="space-y-6">
+                          <div className="space-y-2">
+                              <label className="text-zinc-500 text-xs font-bold uppercase tracking-wider ml-1">Meal Name</label>
+                              <input 
+                                type="text" 
+                                value={manualForm.name}
+                                onChange={e => setManualForm({...manualForm, name: e.target.value})}
+                                placeholder="e.g. Chicken Salad, Protein Shake"
+                                className="w-full bg-zinc-800/50 border border-white/5 rounded-3xl p-5 text-white focus:outline-none focus:border-green-500/30 focus:bg-zinc-800 transition-all font-medium placeholder:text-zinc-600"
+                              />
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-4">
+                               <div className="space-y-2">
+                                  <label className="text-zinc-500 text-xs font-bold uppercase tracking-wider ml-1">Calories</label>
+                                  <input 
+                                    type="number" 
+                                    value={manualForm.calories}
+                                    onChange={e => setManualForm({...manualForm, calories: e.target.value})}
+                                    placeholder="500"
+                                    className="w-full bg-zinc-800/50 border border-white/5 rounded-3xl p-5 text-white focus:outline-none focus:border-green-500/30 focus:bg-zinc-800 transition-all font-medium placeholder:text-zinc-600"
+                                  />
+                              </div>
+                              <div className="space-y-2">
+                                  <label className="text-zinc-500 text-xs font-bold uppercase tracking-wider ml-1">Protein (g)</label>
+                                  <input 
+                                    type="number" 
+                                    value={manualForm.protein}
+                                    onChange={e => setManualForm({...manualForm, protein: e.target.value})}
+                                    placeholder="30"
+                                    className="w-full bg-zinc-800/50 border border-white/5 rounded-3xl p-5 text-white focus:outline-none focus:border-green-500/30 focus:bg-zinc-800 transition-all font-medium placeholder:text-zinc-600"
+                                  />
+                              </div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                               <div className="space-y-2">
+                                  <label className="text-zinc-500 text-xs font-bold uppercase tracking-wider ml-1">Carbs (g)</label>
+                                  <input 
+                                    type="number" 
+                                    value={manualForm.carbs}
+                                    onChange={e => setManualForm({...manualForm, carbs: e.target.value})}
+                                    placeholder="50"
+                                    className="w-full bg-zinc-800/50 border border-white/5 rounded-3xl p-5 text-white focus:outline-none focus:border-green-500/30 focus:bg-zinc-800 transition-all font-medium placeholder:text-zinc-600"
+                                  />
+                              </div>
+                              <div className="space-y-2">
+                                  <label className="text-zinc-500 text-xs font-bold uppercase tracking-wider ml-1">Fats (g)</label>
+                                  <input 
+                                    type="number" 
+                                    value={manualForm.fats}
+                                    onChange={e => setManualForm({...manualForm, fats: e.target.value})}
+                                    placeholder="15"
+                                    className="w-full bg-zinc-800/50 border border-white/5 rounded-3xl p-5 text-white focus:outline-none focus:border-green-500/30 focus:bg-zinc-800 transition-all font-medium placeholder:text-zinc-600"
+                                  />
+                              </div>
+                          </div>
+
+                          <button 
+                            onClick={handleSaveManualMeal}
+                            disabled={!manualForm.name || !manualForm.calories}
+                            className="w-full bg-green-500 text-white font-bold py-5 rounded-3xl hover:bg-green-600 transition-all disabled:opacity-50 disabled:hover:bg-green-500 shadow-lg shadow-green-500/20 mt-2 text-lg"
+                          >
+                              Save Meal
+                          </button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      );
+  }
+
   return (
     <div className="p-6 pb-32 min-h-screen">
-      <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-emerald-600 mb-6">
-            Nutrition
-      </h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-emerald-600">
+                Nutrition
+        </h1>
+        <button 
+            onClick={() => setShowManualForm(true)}
+            className="text-xs bg-zinc-900 border border-white/10 px-3 py-1.5 rounded-full text-zinc-300 hover:text-white hover:border-white/30 transition-all flex items-center gap-1.5"
+        >
+            <Plus size={14} />
+            Add Manual
+        </button>
+      </div>
 
       {!dietPlan ? (
-          <div className="flex flex-col justify-center mt-10">
+          <div className="flex flex-col justify-center animate-fade-in space-y-8">
              <div className="bg-zinc-900/80 border border-white/10 p-6 rounded-3xl backdrop-blur-xl">
                 <h2 className="text-xl font-semibold text-white mb-2">Create Meal Plan</h2>
                 <p className="text-zinc-400 text-sm mb-6">Describe your diet (e.g., "Keto, vegetarian, 1800 calories, high protein").</p>
@@ -68,10 +218,41 @@ export const DietTab: React.FC = () => {
                 </button>
             </div>
             
-            <div className="mt-8 grid grid-cols-2 gap-4 opacity-50">
-                 <div className="bg-zinc-900 rounded-2xl h-32"></div>
-                 <div className="bg-zinc-900 rounded-2xl h-32"></div>
-            </div>
+            {/* Manual Meals List */}
+            {manualMeals.length > 0 && (
+                <div>
+                     <h3 className="text-zinc-500 text-xs font-bold uppercase tracking-wider mb-4 px-1">Tracked Meals</h3>
+                     <div className="space-y-3">
+                        {manualMeals.map((meal) => (
+                            <div key={meal.id} className="bg-zinc-900/50 border border-white/5 p-4 rounded-2xl flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-400">
+                                        <Utensils size={18} />
+                                    </div>
+                                    <div>
+                                        <p className="font-bold text-white text-sm">{meal.name}</p>
+                                        <p className="text-xs text-zinc-500 flex items-center gap-1">
+                                            <Calendar size={10} />
+                                            {new Date(meal.timestamp).toLocaleDateString()}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-sm font-bold text-white">{meal.calories} kcal</p>
+                                    <div className="flex gap-1 text-[10px] text-zinc-500 justify-end">
+                                        <span>{meal.protein}P</span>
+                                        <span>{meal.carbs}C</span>
+                                        <span>{meal.fats}F</span>
+                                    </div>
+                                </div>
+                                <button onClick={() => deleteMeal(meal.id)} className="ml-2 p-2 text-zinc-600 hover:text-red-400">
+                                    <X size={14} />
+                                </button>
+                            </div>
+                        ))}
+                     </div>
+                </div>
+            )}
           </div>
       ) : (
           <div className="space-y-6 animate-fade-in">
