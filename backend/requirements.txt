@@ -1,0 +1,23 @@
+# FitBridge Python AI Backend
+# FastAPI + AI Integration
+
+# Web Framework
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+python-multipart==0.0.17
+
+# Database
+supabase==2.10.0
+python-dotenv==1.0.1
+
+# AI Providers
+openai==1.57.4
+httpx>=0.26,<0.28
+
+# Validation & Security
+pydantic==2.10.3
+pydantic-settings==2.6.1
+python-jose[cryptography]==3.3.0
+
+# Utilities
+python-dateutil==2.9.0

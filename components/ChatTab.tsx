@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, BrainCircuit, Loader2 } from 'lucide-react';
 import { ChatMessage } from '../types';
-import { chatWithThinking } from '../services/geminiService';
-import { GenerateContentResponse } from "@google/genai";
+import { sendChatMessage } from '../services/apiClient';
 
 export const ChatTab: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -36,40 +35,23 @@ export const ChatTab: React.FC = () => {
     try {
       // Prepare history for API
       const history = messages.map(m => ({
-        role: m.role,
-        parts: [{ text: m.text }]
+        role: m.role === 'model' ? 'assistant' : 'user',
+        content: m.text
       }));
 
-      // Stream response
-      const result = await chatWithThinking(history, userMsg.text);
+      // Call backend API
+      const response = await sendChatMessage(userMsg.text, history);
       
-      let fullResponseText = '';
-      const botMsgId = (Date.now() + 1).toString();
-      
-      // Add initial empty bot message
-      setMessages(prev => [...prev, { id: botMsgId, role: 'model', text: '', isThinking: true }]);
-
-      for await (const chunk of result) {
-          const c = chunk as GenerateContentResponse;
-          // Check if there is a text part
-          if (c.text) {
-             fullResponseText += c.text;
-             
-             setMessages(prev => prev.map(msg => 
-                msg.id === botMsgId 
-                ? { ...msg, text: fullResponseText, isThinking: false } // Remove thinking flag once text starts arriving or update it
-                : msg
-             ));
-          }
+      if (response.success && response.data) {
+        const botMsg: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          role: 'model',
+          text: response.data.response
+        };
+        setMessages(prev => [...prev, botMsg]);
+      } else {
+        throw new Error(response.error || 'Failed to get response');
       }
-      
-      // Final update to ensure state is clean
-      setMessages(prev => prev.map(msg => 
-          msg.id === botMsgId 
-          ? { ...msg, isThinking: false } 
-          : msg
-      ));
-
     } catch (error) {
       console.error("Chat error:", error);
       setMessages(prev => [...prev, { id: Date.now().toString(), role: 'model', text: "Sorry, I had trouble thinking about that. Please try again." }]);
@@ -90,7 +72,7 @@ export const ChatTab: React.FC = () => {
       <div className="p-4 border-b border-white/5 bg-zinc-950 sticky top-0 z-10">
         <h1 className="text-xl font-bold text-white flex items-center gap-2">
            <BrainCircuit className="text-pink-500" />
-           AI Coach <span className="text-[10px] bg-zinc-800 px-2 py-0.5 rounded text-zinc-400 font-normal border border-zinc-700">Gemini 3 Pro</span>
+           AI Coach <span className="text-[10px] bg-zinc-800 px-2 py-0.5 rounded text-zinc-400 font-normal border border-zinc-700">DeepSeek</span>
         </h1>
       </div>
 

@@ -7,11 +7,13 @@ import { DietTab } from './components/DietTab';
 import { ActivityTab } from './components/ActivityTab';
 import { ChatTab } from './components/ChatTab';
 import { ProfileTab } from './components/ProfileTab';
+import { AuthScreen } from './components/AuthScreen';
+import { OnboardingScreen } from './components/OnboardingScreen';
 import { AppTab, UserProfile } from './types';
-import { ShieldCheck, ArrowRight, Loader2, CreditCard } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
-// Mock User Data
-const MOCK_USER: UserProfile = {
+// Default user profile for demo/fallback mode
+const DEFAULT_USER: UserProfile = {
   name: 'Alex',
   weight: 78,
   height: 180,
@@ -22,38 +24,168 @@ const MOCK_USER: UserProfile = {
   levelTitle: 'Fitness Enthusiast'
 };
 
+// App states
+type AppState = 'loading' | 'auth' | 'onboarding' | 'app';
+
 const App: React.FC = () => {
+  const [appState, setAppState] = useState<AppState>('loading');
   const [currentTab, setCurrentTab] = useState<AppTab>(AppTab.DASHBOARD);
-  const [hasApiKey, setHasApiKey] = useState(false);
-  const [isCheckingKey, setIsCheckingKey] = useState(true);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile>(DEFAULT_USER);
 
   useEffect(() => {
-    const checkKey = async () => {
-      // Check if running in AI Studio environment with window.aistudio
-      if ((window as any).aistudio && (window as any).aistudio.hasSelectedApiKey) {
-        const has = await (window as any).aistudio.hasSelectedApiKey();
-        setHasApiKey(has);
-      } else if (process.env.API_KEY) {
-        // Fallback for standard environments
-        setHasApiKey(true);
-      }
-      setIsCheckingKey(false);
-    };
-    checkKey();
+    checkAuthState();
   }, []);
 
-  const handleConnectKey = async () => {
-    if ((window as any).aistudio && (window as any).aistudio.openSelectKey) {
-        await (window as any).aistudio.openSelectKey();
-        // Assume success to avoid race conditions as per instructions
-        setHasApiKey(true); 
+  const checkAuthState = async () => {
+    try {
+      // Check for existing session
+      const { getSession, isSupabaseConfigured } = await import('./services/supabaseClient');
+      
+      if (!isSupabaseConfigured()) {
+        // Supabase not configured - check local storage for demo mode
+        const savedUser = localStorage.getItem('fitbridge_demo_user');
+        if (savedUser) {
+          const user = JSON.parse(savedUser);
+          setCurrentUser(user);
+          
+          // Check if user completed onboarding
+          const savedProfile = localStorage.getItem('fitbridge_user_profile');
+          if (savedProfile) {
+            const profile = JSON.parse(savedProfile);
+            setUserProfile({
+              ...DEFAULT_USER,
+              ...profile,
+              level: profile.fitness_level || 'Intermediate',
+            });
+            setAppState('app');
+          } else {
+            setAppState('onboarding');
+          }
+        } else {
+          setAppState('auth');
+        }
+        return;
+      }
+
+      // Try to get existing session from Supabase
+      const session = await getSession();
+      
+      if (session?.user) {
+        setCurrentUser(session.user);
+        
+        // Fetch user profile
+        try {
+          const { getUserProfile } = await import('./services/supabaseClient');
+          const profile = await getUserProfile(session.user.id);
+          
+          if (profile && profile.goal) {
+            // User has completed onboarding
+            setUserProfile({
+              name: profile.name || 'User',
+              weight: profile.weight || 70,
+              height: profile.height || 170,
+              goal: profile.goal,
+              level: profile.fitness_level || 'Intermediate',
+              streak: 0, // Will be fetched from streaks table
+              xp: 0,
+              levelTitle: getLevelTitle(profile.fitness_level || 'Intermediate'),
+            });
+            setAppState('app');
+          } else {
+            // User needs onboarding
+            setAppState('onboarding');
+          }
+        } catch (err) {
+          // Profile fetch failed, proceed to onboarding
+          setAppState('onboarding');
+        }
+      } else {
+        setAppState('auth');
+      }
+    } catch (err) {
+      console.error('Auth check failed:', err);
+      // Fall back to auth screen
+      setAppState('auth');
     }
+  };
+
+  const getLevelTitle = (level: string): string => {
+    switch (level) {
+      case 'Beginner': return 'Rising Star';
+      case 'Intermediate': return 'Fitness Enthusiast';
+      case 'Advanced': return 'Fitness Pro';
+      default: return 'Fitness Explorer';
+    }
+  };
+
+  const handleAuthSuccess = (user: any) => {
+    setCurrentUser(user);
+    
+    // Save to localStorage for demo mode
+    localStorage.setItem('fitbridge_demo_user', JSON.stringify(user));
+    localStorage.setItem('fitbridge_token', user.id);
+    
+    // Check if returning user with profile
+    const savedProfile = localStorage.getItem('fitbridge_user_profile');
+    if (savedProfile) {
+      const profile = JSON.parse(savedProfile);
+      setUserProfile({
+        ...DEFAULT_USER,
+        ...profile,
+        level: profile.fitness_level || 'Intermediate',
+      });
+      setAppState('app');
+    } else {
+      setAppState('onboarding');
+    }
+  };
+
+  const handleOnboardingComplete = (profile: any) => {
+    const fullProfile: UserProfile = {
+      name: profile.name,
+      weight: profile.weight,
+      height: profile.height,
+      goal: profile.goal,
+      level: profile.fitness_level || 'Intermediate',
+      streak: 0,
+      xp: 0,
+      levelTitle: getLevelTitle(profile.fitness_level || 'Intermediate'),
+    };
+    
+    setUserProfile(fullProfile);
+    
+    // Save to localStorage
+    localStorage.setItem('fitbridge_user_profile', JSON.stringify(profile));
+    
+    setAppState('app');
+  };
+
+  const handleLogout = async () => {
+    try {
+      const { signOut, isSupabaseConfigured } = await import('./services/supabaseClient');
+      
+      if (isSupabaseConfigured()) {
+        await signOut();
+      }
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
+    
+    // Clear local storage
+    localStorage.removeItem('fitbridge_demo_user');
+    localStorage.removeItem('fitbridge_user_profile');
+    localStorage.removeItem('fitbridge_token');
+    
+    setCurrentUser(null);
+    setUserProfile(DEFAULT_USER);
+    setAppState('auth');
   };
 
   const renderTab = () => {
     switch (currentTab) {
       case AppTab.DASHBOARD:
-        return <Dashboard user={MOCK_USER} onNavigate={setCurrentTab} />;
+        return <Dashboard user={userProfile} onNavigate={setCurrentTab} />;
       case AppTab.WORKOUT:
         return <WorkoutTab />;
       case AppTab.DIET:
@@ -63,63 +195,43 @@ const App: React.FC = () => {
       case AppTab.CHAT:
         return <ChatTab />;
       case AppTab.PROFILE:
-        return <ProfileTab user={MOCK_USER} />;
+        return <ProfileTab user={userProfile} onLogout={handleLogout} />;
       default:
-        return <Dashboard user={MOCK_USER} onNavigate={setCurrentTab} />;
+        return <Dashboard user={userProfile} onNavigate={setCurrentTab} />;
     }
   };
 
-  if (isCheckingKey) {
+  // Loading state
+  if (appState === 'loading') {
     return (
-        <div className="min-h-screen bg-black flex items-center justify-center text-white">
-            <Loader2 className="animate-spin text-primary w-8 h-8" />
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-10 h-10 text-primary animate-spin mx-auto mb-4" />
+          <p className="text-zinc-500">Loading FitBridge...</p>
         </div>
+      </div>
     );
   }
 
-  if (!hasApiKey) {
+  // Authentication screen
+  if (appState === 'auth') {
+    return <AuthScreen onAuthSuccess={handleAuthSuccess} />;
+  }
+
+  // Onboarding screen
+  if (appState === 'onboarding') {
     return (
-        <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-6 relative overflow-hidden">
-             {/* Background Effects */}
-             <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] rounded-full bg-indigo-900/20 blur-[120px] pointer-events-none"></div>
-             <div className="absolute bottom-[-20%] right-[-20%] w-[80%] h-[80%] rounded-full bg-primary/10 blur-[120px] pointer-events-none"></div>
-
-             <div className="relative z-10 max-w-sm w-full bg-zinc-900/50 border border-white/5 p-8 rounded-3xl backdrop-blur-xl flex flex-col items-center text-center space-y-6">
-                <div className="w-16 h-16 bg-gradient-to-br from-primary to-emerald-500 rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20">
-                    <ShieldCheck className="w-8 h-8 text-black" />
-                </div>
-                
-                <div>
-                    <h1 className="text-2xl font-bold text-white mb-2">Welcome to FitBridge</h1>
-                    <p className="text-zinc-400 text-sm">To access AI Workouts, Diet Plans, and the Smart Coach, please connect your Google Gemini API Key.</p>
-                </div>
-
-                <div className="space-y-4 w-full">
-                    <button 
-                        onClick={handleConnectKey}
-                        className="w-full bg-white text-black font-bold py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-zinc-200 transition-colors shadow-lg shadow-white/10"
-                    >
-                        Connect Intelligence <ArrowRight size={18} />
-                    </button>
-                    
-                    <a 
-                        href="https://ai.google.dev/gemini-api/docs/billing" 
-                        target="_blank" 
-                        rel="noreferrer"
-                        className="flex items-center justify-center gap-2 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
-                    >
-                        <CreditCard size={12} />
-                        Billing required for advanced models
-                    </a>
-                </div>
-             </div>
-        </div>
+      <OnboardingScreen 
+        userId={currentUser?.id || 'demo-user'} 
+        onComplete={handleOnboardingComplete} 
+      />
     );
   }
 
+  // Main app
   return (
     <div className="min-h-screen bg-black text-white relative font-sans selection:bg-primary selection:text-black">
-        {/* Global gradients for atmosphere */}
+      {/* Global gradients for atmosphere */}
       <div className="fixed top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-900/10 blur-[120px] pointer-events-none z-0"></div>
       <div className="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-primary/5 blur-[120px] pointer-events-none z-0"></div>
       

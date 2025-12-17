@@ -5,9 +5,10 @@ import { UserProfile } from '../types';
 
 interface ProfileProps {
     user: UserProfile;
+    onLogout?: () => void;
 }
 
-export const ProfileTab: React.FC<ProfileProps> = ({ user }) => {
+export const ProfileTab: React.FC<ProfileProps> = ({ user, onLogout }) => {
     // Mock Badges Data
     const badges = [
         { id: 1, name: 'Early Riser', icon: Zap, color: 'text-yellow-400', bg: 'bg-yellow-400/10', unlocked: true },
@@ -170,7 +171,10 @@ export const ProfileTab: React.FC<ProfileProps> = ({ user }) => {
                     </button>
                 ))}
 
-                <button className="w-full mt-4 bg-red-500/5 border border-red-500/10 p-4 rounded-2xl flex items-center justify-center gap-2 text-red-500 font-medium hover:bg-red-500/10 transition-colors">
+                <button 
+                    onClick={onLogout}
+                    className="w-full mt-4 bg-red-500/5 border border-red-500/10 p-4 rounded-2xl flex items-center justify-center gap-2 text-red-500 font-medium hover:bg-red-500/10 transition-colors"
+                >
                     <LogOut size={18} />
                     Sign Out
                 </button>

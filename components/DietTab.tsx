@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Utensils, RefreshCw, ChefHat, Leaf, Info, Loader2, Plus, X, Calendar } from 'lucide-react';
-import { generateDiet } from '../services/geminiService';
+import { generateDietPlan } from '../services/apiClient';
 import { DietPlan, Meal } from '../types';
 
 interface ManualMeal {
@@ -34,8 +34,18 @@ export const DietTab: React.FC = () => {
     const handleGenerate = async () => {
         if (!preferences) return;
         setLoading(true);
-        const plan = await generateDiet(preferences);
-        setDietPlan(plan);
+        try {
+            const response = await generateDietPlan(preferences);
+            if (response.success && response.data) {
+                setDietPlan(response.data);
+            } else {
+                console.error('Failed to generate diet:', response.error);
+                alert('Failed to generate diet plan. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error generating diet:', error);
+            alert('Error generating diet plan. Please try again.');
+        }
         setLoading(false);
     };
 

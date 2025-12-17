@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Dumbbell, Play, Clock, BarChart, ChevronRight, Loader2, Zap, Trophy, Flame, Activity, Youtube, HelpCircle, Check, AlertCircle, Save, Download, Plus, X, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
-import { generateWorkout } from '../services/geminiService';
+import { generateWorkoutPlan } from '../services/apiClient';
 import { WorkoutPlan } from '../types';
 
 interface ManualLog {
@@ -110,13 +110,27 @@ export const WorkoutTab: React.FC = () => {
       Create a highly engaging and effective workout plan.
     `;
     
-    const plan = await generateWorkout(fullDescription);
-    setWorkout(plan);
+    try {
+      const response = await generateWorkoutPlan(fullDescription);
+      console.log('API Response:', response);
+      if (response.success && response.data) {
+        console.log('Workout Plan Data:', response.data);
+        setWorkout(response.data);
+      } else {
+        console.error('Failed to generate workout:', response.error);
+        alert('Failed to generate workout. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error generating workout:', error);
+      alert('Error generating workout. Please try again.');
+    }
     setLoading(false);
   };
 
-  const handleSaveWorkout = () => {
+  const handleSaveWorkout = async () => {
     if (!workout) return;
+    
+    // Save to localStorage for resume
     const dataToSave = {
         workout,
         completedExercises,
@@ -124,6 +138,51 @@ export const WorkoutTab: React.FC = () => {
         savedAt: Date.now()
     };
     localStorage.setItem('fitbridge_workout', JSON.stringify(dataToSave));
+    
+    // Calculate workout details using actual workout duration
+    const completedCount = completedExercises.length;
+    const workoutDuration = duration; // Use the duration from the form (user selected)
+    const currentDay = workout.schedule[activeDayIndex];
+    
+    // Save to localStorage workout logs for Activity tab (Demo Mode compatibility)
+    const workoutLog = {
+      id: Date.now().toString(),
+      title: `${workout.title} - ${currentDay?.dayTitle || 'Workout'}`,
+      duration: workoutDuration,
+      calories: completedCount * 50,
+      timestamp: Date.now()
+    };
+    
+    const existingLogs = JSON.parse(localStorage.getItem('fitbridge_manual_workouts') || '[]');
+    existingLogs.push(workoutLog);
+    localStorage.setItem('fitbridge_manual_workouts', JSON.stringify(existingLogs));
+    
+    // Also try to save to backend API (for authenticated users)
+    try {
+      const { logWorkout } = await import('../services/apiClient');
+      
+      const completedExercisesList = currentDay?.exercises.filter((_, idx) => 
+        completedExercises.includes(`${activeDayIndex}-${idx}`)
+      ) || [];
+      
+      const response = await logWorkout({
+        title: `${workout.title} - ${currentDay?.dayTitle || 'Workout'}`,
+        duration_minutes: workoutDuration,
+        workout_type: workout.difficulty,
+        calories_burned: completedCount * 50,
+        exercises: completedExercisesList,
+        notes: `Completed ${completedCount} exercises`,
+        is_ai_generated: true
+      });
+      
+      if (response.success) {
+        console.log('Workout logged to backend successfully');
+      }
+    } catch (error) {
+      console.error('Failed to log workout to backend:', error);
+      // Don't block UX if backend fails - localStorage save is already done
+    }
+    
     setHasSavedWorkout(true);
     setSaveStatus('saved');
     setTimeout(() => setSaveStatus('idle'), 2000);
@@ -341,31 +400,49 @@ export const WorkoutTab: React.FC = () => {
         <div className="flex flex-col justify-center animate-fade-in space-y-8">
             <div className="bg-zinc-900/80 border border-white/10 p-6 rounded-3xl backdrop-blur-xl space-y-8">
                 
-                {/* 1. Goal Selection (Slides) */}
+                {/* 1. Goal Selection (Carousel) */}
                 <div>
                     <label className="text-zinc-500 text-xs font-bold uppercase tracking-wider mb-3 block">
                         Select Goal
                     </label>
-                    <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 -mx-2 px-2 snap-x">
-                        {goals.map((goal) => {
-                            const Icon = goal.icon;
-                            const isSelected = selectedGoal === goal.id;
-                            return (
+                    <div className="relative">
+                        {/* Goal Cards Container */}
+                        <div className="flex gap-3 overflow-hidden">
+                            {goals.map((goal) => {
+                                const Icon = goal.icon;
+                                const isSelected = selectedGoal === goal.id;
+                                return (
+                                    <button
+                                        key={goal.id}
+                                        onClick={() => setSelectedGoal(goal.id)}
+                                        className={`flex-1 min-w-0 p-4 rounded-2xl border transition-all duration-300 flex flex-col items-center gap-3 relative overflow-hidden group ${
+                                            isSelected 
+                                                ? `bg-gradient-to-br ${goal.color} ${goal.border} text-white` 
+                                                : 'bg-zinc-800/50 border-zinc-700 text-zinc-400 hover:bg-zinc-800'
+                                        }`}
+                                    >
+                                        <Icon size={28} className={isSelected ? 'scale-110 transition-transform' : ''} />
+                                        <span className="text-xs font-bold text-center">{goal.id}</span>
+                                        {isSelected && <div className="absolute inset-0 bg-white/5 animate-pulse"></div>}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                        
+                        {/* Navigation Arrows for Mobile */}
+                        <div className="flex justify-center gap-2 mt-3">
+                            {goals.map((goal, idx) => (
                                 <button
-                                    key={goal.id}
+                                    key={idx}
                                     onClick={() => setSelectedGoal(goal.id)}
-                                    className={`snap-center min-w-[140px] p-4 rounded-2xl border transition-all duration-300 flex flex-col items-center gap-3 relative overflow-hidden group ${
-                                        isSelected 
-                                            ? `bg-gradient-to-br ${goal.color} ${goal.border} text-white` 
-                                            : 'bg-zinc-800/50 border-zinc-700 text-zinc-400 hover:bg-zinc-800'
+                                    className={`w-2 h-2 rounded-full transition-all ${
+                                        selectedGoal === goal.id
+                                            ? 'bg-white w-4'
+                                            : 'bg-zinc-700'
                                     }`}
-                                >
-                                    <Icon size={28} className={isSelected ? 'scale-110 transition-transform' : ''} />
-                                    <span className="text-xs font-bold text-center">{goal.id}</span>
-                                    {isSelected && <div className="absolute inset-0 bg-white/5 animate-pulse"></div>}
-                                </button>
-                            );
-                        })}
+                                />
+                            ))}
+                        </div>
                     </div>
                 </div>
 
@@ -559,22 +636,57 @@ export const WorkoutTab: React.FC = () => {
                 <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-indigo-500/20 blur-3xl rounded-full pointer-events-none"></div>
             </div>
 
-            {/* Day Tabs */}
+            {/* Day Tabs - Mobile Carousel Style */}
             {workout.schedule && workout.schedule.length > 1 && (
-                <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
-                    {workout.schedule.map((day, idx) => (
+                <div className="relative flex items-center gap-3 mb-4">
+                    {/* Left Arrow */}
+                    <button
+                        onClick={() => setActiveDayIndex(Math.max(0, activeDayIndex - 1))}
+                        disabled={activeDayIndex === 0}
+                        className={`p-2 rounded-full transition-all ${
+                            activeDayIndex === 0
+                                ? 'bg-zinc-900 text-zinc-700 cursor-not-allowed'
+                                : 'bg-zinc-800 text-white hover:bg-zinc-700'
+                        }`}
+                    >
+                        <ChevronRight className="rotate-180 w-4 h-4" />
+                    </button>
+
+                    {/* Current Day Tab */}
+                    <div className="flex-1">
                         <button
-                            key={idx}
-                            onClick={() => setActiveDayIndex(idx)}
-                            className={`px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition-all ${
-                                activeDayIndex === idx
-                                    ? 'bg-white text-black'
-                                    : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700'
-                            }`}
+                            className="w-full px-4 py-2 rounded-full text-sm font-bold bg-white text-black"
                         >
-                            {day.dayTitle || `Day ${idx + 1}`}
+                            {workout.schedule[activeDayIndex]?.dayTitle || `Day ${activeDayIndex + 1}`}
                         </button>
-                    ))}
+                    </div>
+
+                    {/* Right Arrow */}
+                    <button
+                        onClick={() => setActiveDayIndex(Math.min(workout.schedule.length - 1, activeDayIndex + 1))}
+                        disabled={activeDayIndex === workout.schedule.length - 1}
+                        className={`p-2 rounded-full transition-all ${
+                            activeDayIndex === workout.schedule.length - 1
+                                ? 'bg-zinc-900 text-zinc-700 cursor-not-allowed'
+                                : 'bg-zinc-800 text-white hover:bg-zinc-700'
+                        }`}
+                    >
+                        <ChevronRight className="w-4 h-4" />
+                    </button>
+
+                    {/* Progress Indicator Dots */}
+                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+                        {workout.schedule.map((_, idx) => (
+                            <div
+                                key={idx}
+                                className={`w-1.5 h-1.5 rounded-full transition-all ${
+                                    idx === activeDayIndex
+                                        ? 'bg-white w-3'
+                                        : 'bg-zinc-700'
+                                }`}
+                            />
+                        ))}
+                    </div>
                 </div>
             )}
 

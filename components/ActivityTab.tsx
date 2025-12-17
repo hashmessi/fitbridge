@@ -49,13 +49,15 @@ export const ActivityTab: React.FC = () => {
     loadData();
   }, [view]);
 
-  const loadData = () => {
+  const loadData = async () => {
     // 1. Load Data from Storage
     const savedWeights = localStorage.getItem('fitbridge_weight_logs');
     let loadedWeights: WeightLog[] = savedWeights ? JSON.parse(savedWeights) : [];
     loadedWeights = loadedWeights.sort((a, b) => a.timestamp - b.timestamp);
     setWeights(loadedWeights);
 
+    // TODO: Fetch from backend API once authentication is fully implemented
+    // For now, use localStorage since Demo Mode doesn't have auth tokens
     const savedWorkouts = JSON.parse(localStorage.getItem('fitbridge_manual_workouts') || '[]');
     const savedMeals = JSON.parse(localStorage.getItem('fitbridge_manual_meals') || '[]');
 
