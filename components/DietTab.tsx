@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Utensils, RefreshCw, ChefHat, Leaf, Info, Loader2, Plus, X, Calendar } from 'lucide-react';
+import { Utensils, RefreshCw, ChefHat, Leaf, Info, Loader2, Plus, X, Calendar, Save, Check } from 'lucide-react';
 import { generateDietPlan } from '../services/apiClient';
 import { DietPlan, Meal } from '../types';
 
@@ -18,6 +18,7 @@ export const DietTab: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [dietPlan, setDietPlan] = useState<DietPlan | null>(null);
     const [preferences, setPreferences] = useState('');
+    const [isSaved, setIsSaved] = useState(false);
 
     // Manual Meal State
     const [showManualForm, setShowManualForm] = useState(false);
@@ -29,11 +30,18 @@ export const DietTab: React.FC = () => {
         if (savedMeals) {
             setManualMeals(JSON.parse(savedMeals));
         }
+        // Load saved diet plan
+        const savedPlan = localStorage.getItem('fitbridge_saved_diet_plan');
+        if (savedPlan) {
+            setDietPlan(JSON.parse(savedPlan));
+            setIsSaved(true);
+        }
     }, []);
 
     const handleGenerate = async () => {
         if (!preferences) return;
         setLoading(true);
+        setIsSaved(false);
         try {
             const response = await generateDietPlan(preferences);
             if (response.success && response.data) {
@@ -47,6 +55,12 @@ export const DietTab: React.FC = () => {
             alert('Error generating diet plan. Please try again.');
         }
         setLoading(false);
+    };
+
+    const handleSavePlan = () => {
+        if (!dietPlan) return;
+        localStorage.setItem('fitbridge_saved_diet_plan', JSON.stringify(dietPlan));
+        setIsSaved(true);
     };
 
     const handleSaveManualMeal = () => {
@@ -65,6 +79,16 @@ export const DietTab: React.FC = () => {
         const updatedMeals = [newMeal, ...manualMeals];
         setManualMeals(updatedMeals);
         localStorage.setItem('fitbridge_manual_meals', JSON.stringify(updatedMeals));
+
+        // Update dashboard data (XP gain for logging meal)
+        const dashboardData = JSON.parse(localStorage.getItem('fitbridge_dashboard_data') || '{}');
+        const today = new Date().toDateString();
+        dashboardData.xp = (dashboardData.xp || 0) + 10; // +10 XP for logging a meal
+        if (dashboardData.lastActivityDate !== today) {
+            dashboardData.streak = (dashboardData.streak || 0) + 1;
+            dashboardData.lastActivityDate = today;
+        }
+        localStorage.setItem('fitbridge_dashboard_data', JSON.stringify(dashboardData));
 
         setManualForm({ name: '', calories: '', protein: '', carbs: '', fats: '' });
         setShowManualForm(false);
@@ -271,9 +295,18 @@ export const DietTab: React.FC = () => {
                     <span className="text-4xl font-black text-white">{dietPlan.dailyCalories}</span>
                     <span className="text-sm text-zinc-500 font-medium">kcal goal</span>
                 </div>
-                <button onClick={() => setDietPlan(null)} className="p-2 bg-zinc-800 rounded-full text-zinc-400 hover:text-white">
-                    <RefreshCw size={18} />
-                </button>
+                <div className="flex gap-2">
+                    <button 
+                        onClick={handleSavePlan} 
+                        className={`p-2 rounded-full transition-all ${isSaved ? 'bg-green-500/20 text-green-400' : 'bg-zinc-800 text-zinc-400 hover:text-white'}`}
+                        title={isSaved ? 'Plan saved!' : 'Save plan'}
+                    >
+                        {isSaved ? <Check size={18} /> : <Save size={18} />}
+                    </button>
+                    <button onClick={() => { setDietPlan(null); setIsSaved(false); }} className="p-2 bg-zinc-800 rounded-full text-zinc-400 hover:text-white">
+                        <RefreshCw size={18} />
+                    </button>
+                </div>
              </div>
 
              {/* Macros Summary */}
