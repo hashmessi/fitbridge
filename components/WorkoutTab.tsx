@@ -185,6 +185,25 @@ export const WorkoutTab: React.FC = () => {
     
     setHasSavedWorkout(true);
     setSaveStatus('saved');
+    
+    // Update dashboard data (streak, XP, workout)
+    const dashboardData = JSON.parse(localStorage.getItem('fitbridge_dashboard_data') || '{}');
+    const today = new Date().toDateString();
+    
+    // Update XP (+25 for completing a workout)
+    dashboardData.xp = (dashboardData.xp || 0) + 25;
+    
+    // Update streak if first activity today
+    if (dashboardData.lastActivityDate !== today) {
+      dashboardData.streak = (dashboardData.streak || 0) + 1;
+      dashboardData.lastActivityDate = today;
+    }
+    
+    // Set today's workout name
+    dashboardData.todayWorkout = currentDay?.dayTitle || workout.title;
+    
+    localStorage.setItem('fitbridge_dashboard_data', JSON.stringify(dashboardData));
+    
     setTimeout(() => setSaveStatus('idle'), 2000);
   };
 
