@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { User, Settings, Bell, Shield, LogOut, ChevronRight, Trophy, Flame, Crown, Star, Zap, CheckCircle2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { User, Settings, Bell, Shield, LogOut, ChevronRight, Trophy, Flame, Crown, Star, Zap, CheckCircle2, Dumbbell, Utensils } from 'lucide-react';
 import { UserProfile } from '../types';
 
 interface ProfileProps {
@@ -8,15 +8,111 @@ interface ProfileProps {
     onLogout?: () => void;
 }
 
+// XP Level thresholds (same as Dashboard)
+const XP_LEVELS = [
+  { level: 'Beginner', minXP: 0, maxXP: 500, title: 'Fitness Rookie' },
+  { level: 'Intermediate', minXP: 500, maxXP: 1500, title: 'Fitness Enthusiast' },
+  { level: 'Advanced', minXP: 1500, maxXP: 3000, title: 'Fitness Pro' },
+  { level: 'Elite', minXP: 3000, maxXP: 5000, title: 'Elite Athlete' },
+  { level: 'Master', minXP: 5000, maxXP: 10000, title: 'Fitness Master' },
+];
+
 export const ProfileTab: React.FC<ProfileProps> = ({ user, onLogout }) => {
-    // Mock Badges Data
+    // Dynamic state from localStorage
+    const [xp, setXp] = useState(0);
+    const [streak, setStreak] = useState(0);
+    const [totalWorkouts, setTotalWorkouts] = useState(0);
+    const [totalMeals, setTotalMeals] = useState(0);
+
+    // Load data on mount
+    useEffect(() => {
+        const dashboardData = localStorage.getItem('fitbridge_dashboard_data');
+        if (dashboardData) {
+            const data = JSON.parse(dashboardData);
+            setXp(data.xp || 0);
+            setStreak(data.streak || 0);
+        }
+
+        // Count workouts
+        const workoutLogs = localStorage.getItem('fitbridge_manual_workouts');
+        if (workoutLogs) {
+            const logs = JSON.parse(workoutLogs);
+            setTotalWorkouts(logs.length);
+        }
+
+        // Count meals
+        const mealLogs = localStorage.getItem('fitbridge_manual_meals');
+        if (mealLogs) {
+            const logs = JSON.parse(mealLogs);
+            setTotalMeals(logs.length);
+        }
+    }, []);
+
+    // Calculate current level
+    const getCurrentLevel = () => {
+        for (let i = XP_LEVELS.length - 1; i >= 0; i--) {
+            if (xp >= XP_LEVELS[i].minXP) {
+                return XP_LEVELS[i];
+            }
+        }
+        return XP_LEVELS[0];
+    };
+
+    const currentLevel = getCurrentLevel();
+    const nextLevel = XP_LEVELS[XP_LEVELS.indexOf(currentLevel) + 1] || currentLevel;
+    const xpToNext = nextLevel.minXP - xp;
+    const levelProgress = Math.min(100, Math.round(((xp - currentLevel.minXP) / (currentLevel.maxXP - currentLevel.minXP)) * 100));
+
+    // Dynamic badges based on achievements
     const badges = [
-        { id: 1, name: 'Early Riser', icon: Zap, color: 'text-yellow-400', bg: 'bg-yellow-400/10', unlocked: true },
-        { id: 2, name: '7 Day Streak', icon: Flame, color: 'text-orange-500', bg: 'bg-orange-500/10', unlocked: true },
-        { id: 3, name: 'Heavy Lifter', icon: Trophy, color: 'text-blue-400', bg: 'bg-blue-400/10', unlocked: true },
-        { id: 4, name: 'Nutritionist', icon: Star, color: 'text-green-400', bg: 'bg-green-400/10', unlocked: false },
-        { id: 5, name: 'Marathoner', icon: Crown, color: 'text-purple-400', bg: 'bg-purple-400/10', unlocked: false },
+        { 
+            id: 1, 
+            name: 'First Steps', 
+            icon: Zap, 
+            color: 'text-yellow-400', 
+            bg: 'bg-yellow-400/10', 
+            unlocked: xp > 0,
+            description: 'Start your fitness journey'
+        },
+        { 
+            id: 2, 
+            name: `${Math.min(streak, 7)} Day Streak`, 
+            icon: Flame, 
+            color: 'text-orange-500', 
+            bg: 'bg-orange-500/10', 
+            unlocked: streak >= 7,
+            description: 'Maintain 7 day streak'
+        },
+        { 
+            id: 3, 
+            name: 'Heavy Lifter', 
+            icon: Dumbbell, 
+            color: 'text-blue-400', 
+            bg: 'bg-blue-400/10', 
+            unlocked: totalWorkouts >= 5,
+            description: 'Complete 5 workouts'
+        },
+        { 
+            id: 4, 
+            name: 'Nutritionist', 
+            icon: Utensils, 
+            color: 'text-green-400', 
+            bg: 'bg-green-400/10', 
+            unlocked: totalMeals >= 10,
+            description: 'Log 10 meals'
+        },
+        { 
+            id: 5, 
+            name: 'Elite Status', 
+            icon: Crown, 
+            color: 'text-purple-400', 
+            bg: 'bg-purple-400/10', 
+            unlocked: xp >= 3000,
+            description: 'Reach Elite level'
+        },
     ];
+
+    const unlockedCount = badges.filter(b => b.unlocked).length;
 
     return (
         <div className="p-6 pb-32 min-h-screen animate-fade-in">
@@ -43,15 +139,15 @@ export const ProfileTab: React.FC<ProfileProps> = ({ user, onLogout }) => {
                      <div>
                          <p className="text-zinc-400 text-xs font-bold uppercase tracking-wider mb-1">Current Level</p>
                          <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                             {user.levelTitle}
+                             {currentLevel.title}
                              <Crown size={18} className="text-yellow-500 fill-yellow-500" />
                          </h2>
                      </div>
                      <div className="text-right">
                          <p className="text-zinc-400 text-xs font-bold uppercase tracking-wider mb-1">Streak</p>
                          <div className="flex items-center justify-end gap-1 text-orange-500">
-                             <Flame size={20} fill="currentColor" />
-                             <span className="text-2xl font-black">{user.streak}</span>
+                             <Flame size={20} fill={streak > 0 ? 'currentColor' : 'none'} />
+                             <span className="text-2xl font-black">{streak}</span>
                          </div>
                      </div>
                  </div>
@@ -59,16 +155,18 @@ export const ProfileTab: React.FC<ProfileProps> = ({ user, onLogout }) => {
                  {/* XP Bar */}
                  <div className="space-y-2">
                      <div className="flex justify-between text-xs text-zinc-500 font-medium">
-                         <span>{user.xp} XP</span>
-                         <span>2000 XP</span>
+                         <span>{xp} XP</span>
+                         <span>{currentLevel.maxXP} XP</span>
                      </div>
                      <div className="h-3 w-full bg-zinc-800 rounded-full overflow-hidden border border-white/5">
                         <div
-                            className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.3)]"
-                            style={{ width: `${(user.xp / 2000) * 100}%` }}
+                            className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.3)] transition-all duration-500"
+                            style={{ width: `${levelProgress}%` }}
                         ></div>
                      </div>
-                     <p className="text-[10px] text-zinc-600 text-center mt-2">Earn 750 more XP to reach Elite status</p>
+                     <p className="text-[10px] text-zinc-600 text-center mt-2">
+                        {xpToNext > 0 ? `Earn ${xpToNext} more XP to reach ${nextLevel.level} status` : 'Max level reached!'}
+                     </p>
                  </div>
             </div>
 
@@ -76,14 +174,14 @@ export const ProfileTab: React.FC<ProfileProps> = ({ user, onLogout }) => {
              <div className="grid grid-cols-2 gap-4 mb-6">
                 <div className="bg-zinc-900/50 border border-white/5 p-4 rounded-2xl flex items-center justify-between">
                     <div>
-                        <span className="text-xs text-zinc-500 uppercase font-bold block">Weight</span>
-                        <span className="text-xl font-bold text-white">{user.weight} <span className="text-sm font-normal text-zinc-600">kg</span></span>
+                        <span className="text-xs text-zinc-500 uppercase font-bold block">Workouts</span>
+                        <span className="text-xl font-bold text-white">{totalWorkouts} <span className="text-sm font-normal text-zinc-600">total</span></span>
                     </div>
                 </div>
                 <div className="bg-zinc-900/50 border border-white/5 p-4 rounded-2xl flex items-center justify-between">
                     <div>
-                         <span className="text-xs text-zinc-500 uppercase font-bold block">Height</span>
-                        <span className="text-xl font-bold text-white">{user.height} <span className="text-sm font-normal text-zinc-600">cm</span></span>
+                         <span className="text-xs text-zinc-500 uppercase font-bold block">Meals Logged</span>
+                        <span className="text-xl font-bold text-white">{totalMeals} <span className="text-sm font-normal text-zinc-600">total</span></span>
                     </div>
                 </div>
             </div>
@@ -92,7 +190,7 @@ export const ProfileTab: React.FC<ProfileProps> = ({ user, onLogout }) => {
             <div className="mb-8">
                 <div className="flex justify-between items-center mb-4">
                     <h3 className="font-bold text-white text-lg">Badges</h3>
-                    <span className="text-xs text-zinc-500 font-medium">{badges.filter(b => b.unlocked).length}/{badges.length} Unlocked</span>
+                    <span className="text-xs text-zinc-500 font-medium">{unlockedCount}/{badges.length} Unlocked</span>
                 </div>
                 <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2 -mx-6 px-6">
                     {badges.map((badge) => (
@@ -135,7 +233,7 @@ export const ProfileTab: React.FC<ProfileProps> = ({ user, onLogout }) => {
                             {[
                                 'Unlimited AI Workout Generation',
                                 'Advanced Diet Macros & Recipes',
-                                'Gemini 3 Pro Thinking Model',
+                                'DeepSeek AI Thinking Model',
                                 'No Ads'
                             ].map((feature, i) => (
                                 <li key={i} className="flex items-center gap-2 text-sm text-zinc-300">
