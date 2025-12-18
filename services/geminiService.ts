@@ -83,7 +83,7 @@ export const generateWorkout = async (userDescription: string): Promise<WorkoutP
 export const generateDiet = async (userDescription: string): Promise<DietPlan | null> => {
   try {
     const ai = getAI();
-    const model = 'gemini-3-pro-preview';
+    const model = 'gemini-2.0-flash';
     const response = await ai.models.generateContent({
       model,
       contents: `Generate a daily diet plan for: ${userDescription}. Return JSON.`,
@@ -157,8 +157,8 @@ export const generateDiet = async (userDescription: string): Promise<DietPlan | 
 
 export const chatWithThinking = async (history: {role: string, parts: {text: string}[]}[], newMessage: string) => {
   const ai = getAI();
-  // We use the Thinking model for the chat as requested
-  const model = 'gemini-3-pro-preview'; 
+  // We use a stable Gemini model for reliable chat
+  const model = 'gemini-2.0-flash'; 
   
   const chat = ai.chats.create({
     model,

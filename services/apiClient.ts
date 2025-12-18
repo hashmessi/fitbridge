@@ -79,7 +79,6 @@ async function apiCall<T>(
     });
 
     const data = await response.json();
-    console.log('Raw API response from backend:', data);
 
     if (!response.ok) {
       return { success: false, error: data.detail || "API request failed" };
