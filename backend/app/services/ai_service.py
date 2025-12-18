@@ -134,7 +134,6 @@ class AIService:
         Generate a personalized workout plan
         """
         # Mock mode
-        print(f"DEBUG: Generating plan with provider: {self.provider}")
         if self.provider == "mock":
             return MOCK_WORKOUT_PLAN
         
@@ -189,7 +188,6 @@ Return ONLY valid JSON, no additional text."""
         )
         
         content = response.choices[0].message.content
-        print(f"DEBUG: Raw AI response: {content[:200]}...")
         
         try:
             # Handle potential thinking tags or markdown code blocks
@@ -200,8 +198,7 @@ Return ONLY valid JSON, no additional text."""
                 
             plan = json.loads(content)
         except Exception as e:
-            print(f"ERROR: Failed to parse JSON: {e}")
-            raise ValueError(f"AI returned invalid JSON: {content[:100]}")
+            raise ValueError(f"AI returned invalid JSON: {str(e)}")
             
         # Handle case where AI returns a list instead of an object
         if isinstance(plan, list):
@@ -327,8 +324,11 @@ User Context:
         # Add history
         if history:
             for msg in history:
-                role = "assistant" if msg.get('role') == 'assistant' else "user"
-                messages.append({"role": role, "content": msg.get('content', '')})
+                # Handle both Pydantic models and dicts
+                msg_role = getattr(msg, 'role', None) or (msg.get('role') if isinstance(msg, dict) else 'user')
+                msg_content = getattr(msg, 'content', None) or (msg.get('content', '') if isinstance(msg, dict) else '')
+                role = "assistant" if msg_role == 'assistant' else "user"
+                messages.append({"role": role, "content": msg_content})
         
         # Add current message
         messages.append({"role": "user", "content": message})
@@ -375,8 +375,11 @@ Provide advice on workouts, nutrition, recovery, and motivation. Keep responses 
         
         if history:
             for msg in history:
-                role = "assistant" if msg.get('role') == 'assistant' else "user"
-                messages.append({"role": role, "content": msg.get('content', '')})
+                # Handle both Pydantic models and dicts
+                msg_role = getattr(msg, 'role', None) or (msg.get('role') if isinstance(msg, dict) else 'user')
+                msg_content = getattr(msg, 'content', None) or (msg.get('content', '') if isinstance(msg, dict) else '')
+                role = "assistant" if msg_role == 'assistant' else "user"
+                messages.append({"role": role, "content": msg_content})
         
         messages.append({"role": "user", "content": message})
         

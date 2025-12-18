@@ -17,12 +17,12 @@ class Settings(BaseSettings):
     supabase_service_role_key: str
     
     # AI Provider
-    ai_provider: str = "openai"  # 'openai' or 'deepseek'
+    ai_provider: str = "deepseek"  # 'openai', 'deepseek', or 'mock'
     openai_api_key: str = ""
     openai_model: str = "gpt-4o"
     deepseek_api_key: str = ""
-    deepseek_base_url: str = "https://api.deepseek.com/v1"
-    deepseek_model: str = "deepseek/deepseek-r1-distill-llama-70b"
+    deepseek_base_url: str = "https://openrouter.ai/api/v1"
+    deepseek_model: str = "deepseek/deepseek-chat"
     
     # Server
     host: str = "0.0.0.0"
