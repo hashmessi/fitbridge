@@ -63,7 +63,7 @@ export const DietTab: React.FC = () => {
         setIsSaved(true);
     };
 
-    const handleSaveManualMeal = () => {
+    const handleSaveManualMeal = async () => {
         if (!manualForm.name || !manualForm.calories) return;
 
         const newMeal: ManualMeal = {
@@ -83,12 +83,34 @@ export const DietTab: React.FC = () => {
         // Update dashboard data (XP gain for logging meal)
         const dashboardData = JSON.parse(localStorage.getItem('fitbridge_dashboard_data') || '{}');
         const today = new Date().toDateString();
-        dashboardData.xp = (dashboardData.xp || 0) + 10; // +10 XP for logging a meal
+        dashboardData.xp = (dashboardData.xp || 0) + 10;
         if (dashboardData.lastActivityDate !== today) {
             dashboardData.streak = (dashboardData.streak || 0) + 1;
             dashboardData.lastActivityDate = today;
         }
         localStorage.setItem('fitbridge_dashboard_data', JSON.stringify(dashboardData));
+
+        // Save to Supabase database if configured
+        try {
+            const { logMeal, isSupabaseConfigured } = await import('../services/supabaseClient');
+            const userId = localStorage.getItem('fitbridge_token');
+            
+            if (isSupabaseConfigured() && userId) {
+                await logMeal({
+                    user_id: userId,
+                    log_date: new Date().toISOString().split('T')[0],
+                    meal_type: 'Snack',
+                    meal_name: manualForm.name,
+                    calories: Number(manualForm.calories),
+                    protein: Number(manualForm.protein) || 0,
+                    carbs: Number(manualForm.carbs) || 0,
+                    fats: Number(manualForm.fats) || 0,
+                    is_ai_generated: false
+                });
+            }
+        } catch (error) {
+            console.error('Failed to log meal to Supabase:', error);
+        }
 
         setManualForm({ name: '', calories: '', protein: '', carbs: '', fats: '' });
         setShowManualForm(false);

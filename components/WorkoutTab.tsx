@@ -180,7 +180,30 @@ export const WorkoutTab: React.FC = () => {
       }
     } catch (error) {
       console.error('Failed to log workout to backend:', error);
-      // Don't block UX if backend fails - localStorage save is already done
+    }
+    
+    // Save to Supabase database if configured
+    try {
+      const { logWorkout: logWorkoutToDb, isSupabaseConfigured } = await import('../services/supabaseClient');
+      const userId = localStorage.getItem('fitbridge_token');
+      
+      if (isSupabaseConfigured() && userId) {
+        await logWorkoutToDb({
+          user_id: userId,
+          workout_date: new Date().toISOString().split('T')[0],
+          title: `${workout.title} - ${currentDay?.dayTitle || 'Workout'}`,
+          workout_type: workout.difficulty,
+          duration_minutes: workoutDuration,
+          calories_burned: completedCount * 50,
+          exercises: currentDay?.exercises.filter((_, idx) => 
+            completedExercises.includes(`${activeDayIndex}-${idx}`)
+          ) || [],
+          is_ai_generated: true
+        });
+        console.log('Workout logged to Supabase successfully');
+      }
+    } catch (error) {
+      console.error('Failed to log workout to Supabase:', error);
     }
     
     setHasSavedWorkout(true);

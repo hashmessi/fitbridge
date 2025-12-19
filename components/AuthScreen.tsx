@@ -46,7 +46,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess, onSkip })
       if (!isSupabaseConfigured()) {
         // Demo mode - skip auth
         onAuthSuccess({
-          id: 'demo-user',
+          id: '00000000-0000-0000-0000-000000000001',
           email: email || 'demo@fitbridge.app',
           name: name || 'Demo User'
         });
@@ -80,7 +80,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess, onSkip })
       
       if (!isSupabaseConfigured()) {
         onAuthSuccess({
-          id: 'demo-user',
+          id: '00000000-0000-0000-0000-000000000001',
           email: 'demo@fitbridge.app',
           name: 'Demo User'
         });
@@ -97,7 +97,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess, onSkip })
 
   const handleDemoMode = () => {
     onAuthSuccess({
-      id: 'demo-user',
+      id: '00000000-0000-0000-0000-000000000001',
       email: 'demo@fitbridge.app',
       name: 'Demo User'
     });

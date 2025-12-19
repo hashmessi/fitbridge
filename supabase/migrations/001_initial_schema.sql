@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS workout_logs (
     exercises JSONB, -- Array of exercises with sets/reps
     notes TEXT,
     is_ai_generated BOOLEAN DEFAULT FALSE,
-    ai_plan_id UUID REFERENCES ai_plans(id) ON DELETE SET NULL,
+    ai_plan_id UUID, -- Reference to AI plan (no FK constraint to avoid ordering issues)
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS diet_logs (
     fats DECIMAL(5,1) DEFAULT 0,
     description TEXT,
     is_ai_generated BOOLEAN DEFAULT FALSE,
-    ai_plan_id UUID REFERENCES ai_plans(id) ON DELETE SET NULL,
+    ai_plan_id UUID, -- Reference to AI plan (no FK constraint to avoid ordering issues)
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

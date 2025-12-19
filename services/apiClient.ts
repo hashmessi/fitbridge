@@ -53,7 +53,8 @@ export interface Meal {
   description: string;
 }
 
-export interface UserProfile {
+// User profile type for API calls (subset of main UserProfile)
+export interface ApiUserProfile {
   name: string;
   weight: number;
   height: number;
@@ -113,7 +114,7 @@ export async function checkHealth(): Promise<boolean> {
 
 export async function generateWorkoutPlan(
   userDescription: string,
-  userProfile?: UserProfile
+  userProfile?: ApiUserProfile
 ): Promise<ApiResponse<WorkoutPlan>> {
   const response = await apiCall<{ plan: WorkoutPlan }>("/api/ai/generate", {
     method: "POST",
@@ -132,7 +133,7 @@ export async function generateWorkoutPlan(
 
 export async function generateDietPlan(
   userDescription: string,
-  userProfile?: UserProfile
+  userProfile?: ApiUserProfile
 ): Promise<ApiResponse<DietPlan>> {
   const response = await apiCall<{ plan: DietPlan }>("/api/ai/generate", {
     method: "POST",

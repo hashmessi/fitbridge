@@ -38,33 +38,149 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onNavigate }) => {
 
   // Load saved data on mount
   useEffect(() => {
-    const savedData = localStorage.getItem('fitbridge_dashboard_data');
-    if (savedData) {
-      const data = JSON.parse(savedData);
-      setStreak(data.streak || 0);
-      setXp(data.xp || 0);
-      setTodayCalories(data.todayCalories || 0);
-      setSteps(data.steps || 0);
-      setTodayWorkout(data.todayWorkout || null);
-      setLastActivityDate(data.lastActivityDate || null);
-    }
-
-    // Load today's meals from DietTab storage
-    const savedMeals = localStorage.getItem('fitbridge_manual_meals');
-    if (savedMeals) {
-      const meals = JSON.parse(savedMeals);
-      const today = new Date().toDateString();
-      const todayMeals = meals.filter((m: any) => new Date(m.timestamp).toDateString() === today);
-      const totalCals = todayMeals.reduce((sum: number, m: any) => sum + (m.calories || 0), 0);
-      setTodayCalories(totalCals);
-    }
-
+    loadDashboardData();
+    
     // Set random motivational quote
     setQuote(MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)]);
-
-    // Check and update streak based on activity
-    checkAndUpdateStreak();
   }, []);
+
+  const loadDashboardData = async () => {
+    const userId = localStorage.getItem('fitbridge_token');
+    console.log('[Dashboard] Loading data for user:', userId);
+    
+    try {
+      const { isSupabaseConfigured, getTotalXP, getUserStreaks, getWorkoutLogs, getDietLogs } = await import('../services/supabaseClient');
+      
+      if (isSupabaseConfigured() && userId) {
+        console.log('[Dashboard] Fetching from Supabase...');
+        // Fetch from Supabase
+        const [xpData, streaks, workouts, meals] = await Promise.all([
+          getTotalXP(userId),
+          getUserStreaks(userId),
+          getWorkoutLogs(userId, 10),
+          getDietLogs(userId, new Date().toISOString().split('T')[0], 20)
+        ]);
+        
+        console.log('[Dashboard] Data fetched:', { xpData, streaks: streaks.length, workouts: workouts.length, meals: meals.length });
+        
+        // Set XP and level
+        setXp(xpData.xp);
+        
+        // Set streak from workout streak
+        const workoutStreak = streaks.find(s => s.streak_type === 'workout');
+        console.log('[Dashboard] Workout streak from Supabase:', workoutStreak);
+        
+        // If Supabase has no streak data, calculate from localStorage
+        if (!workoutStreak || workoutStreak.current_streak === 0) {
+          console.log('[Dashboard] No Supabase streak, calculating from localStorage...');
+          const savedWorkouts = JSON.parse(localStorage.getItem('fitbridge_manual_workouts') || '[]');
+          let streakCount = 0;
+          
+          if (savedWorkouts.length > 0) {
+            const allWorkoutsSorted = savedWorkouts.sort((a: any, b: any) => b.timestamp - a.timestamp);
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            let checkDate = new Date(today);
+            let found = true;
+            
+            while (found && streakCount < 365) {
+              const hasW = allWorkoutsSorted.some((w: any) => {
+                const wd = new Date(w.timestamp);
+                wd.setHours(0,0,0,0);
+                return wd.getTime() === checkDate.getTime();
+              });
+              
+              if (hasW) {
+                streakCount++;
+                checkDate.setDate(checkDate.getDate() - 1);
+              } else {
+                if (checkDate.getTime() === today.getTime()) {
+                  checkDate.setDate(checkDate.getDate() - 1);
+                } else {
+                  found = false;
+                }
+              }
+            }
+          }
+          console.log('[Dashboard] Calculated streak from localStorage:', streakCount);
+          setStreak(streakCount);
+        } else {
+          setStreak(workoutStreak.current_streak || 0);
+        }
+        
+        setLastActivityDate(workoutStreak?.last_activity_date || null);
+        
+        // Check today's workouts
+        const today = new Date().toISOString().split('T')[0];
+        let todayWorkouts = workouts.filter(w => w.workout_date === today);
+        console.log('[Dashboard] Today workouts from Supabase:', todayWorkouts);
+        
+        // If no Supabase workouts, check localStorage
+        if (todayWorkouts.length === 0) {
+          console.log('[Dashboard] Checking localStorage for today\'s workouts...');
+          const savedWorkouts = JSON.parse(localStorage.getItem('fitbridge_manual_workouts') || '[]');
+          const todayDate = new Date();
+          todayDate.setHours(0,0,0,0);
+          
+          const localTodayWorkouts = savedWorkouts.filter((w: any) => {
+            const wDate = new Date(w.timestamp);
+            wDate.setHours(0,0,0,0);
+            return wDate.getTime() === todayDate.getTime();
+          });
+          
+          console.log('[Dashboard] Found workouts in localStorage:', localTodayWorkouts.length);
+          if (localTodayWorkouts.length > 0) {
+            setTodayWorkout(localTodayWorkouts[0].activity || 'Workout');
+          } else {
+            setTodayWorkout(null);
+          }
+        } else {
+          setTodayWorkout(todayWorkouts[0].title);
+        }
+        
+        // Calculate today's calories from meals
+        const todayCaloriesSum = meals.reduce((sum, m) => sum + (m.calories || 0), 0);
+        setTodayCalories(todayCaloriesSum);
+        console.log('[Dashboard] Daily load will be:', { workout: !!todayWorkouts.length, calories: todayCaloriesSum });
+        
+      } else {
+        console.log('[Dashboard] Using localStorage fallback');
+        // Fallback to localStorage for demo mode
+        const savedData = localStorage.getItem('fitbridge_dashboard_data');
+        if (savedData) {
+          const data = JSON.parse(savedData);
+          setStreak(data.streak || 0);
+          setXp(data.xp || 0);
+          setTodayCalories(data.todayCalories || 0);
+          setSteps(data.steps || 0);
+          setTodayWorkout(data.todayWorkout || null);
+          setLastActivityDate(data.lastActivityDate || null);
+        }
+
+        // Load today's meals from localStorage
+        const savedMeals = localStorage.getItem('fitbridge_manual_meals');
+        if (savedMeals) {
+          const meals = JSON.parse(savedMeals);
+          const today = new Date().toDateString();
+          const todayMeals = meals.filter((m: any) => new Date(m.timestamp).toDateString() === today);
+          const totalCals = todayMeals.reduce((sum: number, m: any) => sum + (m.calories || 0), 0);
+          setTodayCalories(totalCals);
+        }
+      }
+      
+      // Check and update streak
+      checkAndUpdateStreak();
+    } catch (error) {
+      console.error('[Dashboard] Failed to load dashboard data:', error);
+      // Fallback to localStorage
+      const savedData = localStorage.getItem('fitbridge_dashboard_data');
+      if (savedData) {
+        const data = JSON.parse(savedData);
+        setStreak(data.streak || 0);
+        setXp(data.xp || 0);
+      }
+    }
+  };
 
   // Save data whenever it changes
   useEffect(() => {
@@ -79,22 +195,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onNavigate }) => {
     localStorage.setItem('fitbridge_dashboard_data', JSON.stringify(data));
   }, [streak, xp, todayCalories, steps, todayWorkout, lastActivityDate]);
 
-  // Listen for activity updates from other tabs
+  // Listen for activity updates and auto-refresh
   useEffect(() => {
     const handleStorageChange = () => {
-      // Reload meals data
-      const savedMeals = localStorage.getItem('fitbridge_manual_meals');
-      if (savedMeals) {
-        const meals = JSON.parse(savedMeals);
-        const today = new Date().toDateString();
-        const todayMeals = meals.filter((m: any) => new Date(m.timestamp).toDateString() === today);
-        const totalCals = todayMeals.reduce((sum: number, m: any) => sum + (m.calories || 0), 0);
-        setTodayCalories(totalCals);
-      }
+      loadDashboardData(); // Reload all data when storage changes
     };
 
     window.addEventListener('storage', handleStorageChange);
-    const interval = setInterval(handleStorageChange, 5000); // Check every 5 seconds
+    const interval = setInterval(() => {
+      loadDashboardData(); // Refresh every 10 seconds
+    }, 10000);
 
     return () => {
       window.removeEventListener('storage', handleStorageChange);

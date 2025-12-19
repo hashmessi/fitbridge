@@ -39,8 +39,13 @@ const App: React.FC = () => {
 
   const checkAuthState = async () => {
     try {
-      // Check for existing session
-      const { getSession, isSupabaseConfigured } = await import('./services/supabaseClient');
+      const { 
+        getSession, 
+        isSupabaseConfigured, 
+        getUserProfile, 
+        getTotalXP,
+        getUserStreaks 
+      } = await import('./services/supabaseClient');
       
       if (!isSupabaseConfigured()) {
         // Supabase not configured - check local storage for demo mode
@@ -49,14 +54,16 @@ const App: React.FC = () => {
           const user = JSON.parse(savedUser);
           setCurrentUser(user);
           
-          // Check if user completed onboarding
           const savedProfile = localStorage.getItem('fitbridge_user_profile');
           if (savedProfile) {
             const profile = JSON.parse(savedProfile);
+            const savedData = JSON.parse(localStorage.getItem('fitbridge_dashboard_data') || '{}');
             setUserProfile({
               ...DEFAULT_USER,
               ...profile,
               level: profile.fitness_level || 'Intermediate',
+              streak: savedData.streak || 0,
+              xp: savedData.xp || 0,
             });
             setAppState('app');
           } else {
@@ -74,30 +81,31 @@ const App: React.FC = () => {
       if (session?.user) {
         setCurrentUser(session.user);
         
-        // Fetch user profile
         try {
-          const { getUserProfile } = await import('./services/supabaseClient');
           const profile = await getUserProfile(session.user.id);
           
           if (profile && profile.goal) {
-            // User has completed onboarding
+            // Fetch real streak and XP from database
+            const { xp, level, title } = await getTotalXP(session.user.id);
+            const streaks = await getUserStreaks(session.user.id);
+            const workoutStreak = streaks.find(s => s.streak_type === 'workout');
+            
             setUserProfile({
               name: profile.name || 'User',
               weight: profile.weight || 70,
               height: profile.height || 170,
               goal: profile.goal,
               level: profile.fitness_level || 'Intermediate',
-              streak: 0, // Will be fetched from streaks table
-              xp: 0,
-              levelTitle: getLevelTitle(profile.fitness_level || 'Intermediate'),
+              streak: workoutStreak?.current_streak || 0,
+              xp: xp,
+              levelTitle: title,
             });
             setAppState('app');
           } else {
-            // User needs onboarding
             setAppState('onboarding');
           }
         } catch (err) {
-          // Profile fetch failed, proceed to onboarding
+          console.error('Profile fetch error:', err);
           setAppState('onboarding');
         }
       } else {
@@ -105,7 +113,6 @@ const App: React.FC = () => {
       }
     } catch (err) {
       console.error('Auth check failed:', err);
-      // Fall back to auth screen
       setAppState('auth');
     }
   };

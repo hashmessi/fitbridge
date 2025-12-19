@@ -16,12 +16,12 @@ async def lifespan(app: FastAPI):
     """Application lifespan handler - startup and shutdown"""
     # Startup
     settings = get_settings()
-    print(f"🚀 FitBridge AI Backend starting...")
-    print(f"📡 AI Provider: {settings.ai_provider}")
-    print(f"🔗 Supabase URL: {settings.supabase_url[:30]}...")
+    print("FitBridge AI Backend starting...")
+    print(f"AI Provider: {settings.ai_provider}")
+    print(f"Supabase URL: {settings.supabase_url[:30]}...")
     yield
     # Shutdown
-    print("👋 FitBridge AI Backend shutting down...")
+    print("FitBridge AI Backend shutting down...")
 
 
 # Create FastAPI application
