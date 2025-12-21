@@ -42,6 +42,13 @@ async def generate_plan(
     Generate an AI workout or diet plan based on user description
     """
     try:
+        # Check if AI service is ready
+        if not ai_service.is_ready():
+            return GeneratePlanResponse(
+                success=False, 
+                error=f"AI service not configured. Provider: {ai_service.provider}"
+            )
+        
         if request.plan_type == "workout":
             plan = await ai_service.generate_workout_plan(
                 request.user_description,
@@ -61,7 +68,11 @@ async def generate_plan(
         return GeneratePlanResponse(success=True, plan=plan)
     
     except Exception as e:
-        return GeneratePlanResponse(success=False, error=str(e))
+        import traceback
+        error_details = f"{type(e).__name__}: {str(e)}"
+        print(f"AI Generation Error: {error_details}")
+        print(traceback.format_exc())
+        return GeneratePlanResponse(success=False, error=error_details)
 
 
 @router.get("/status")
