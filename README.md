@@ -1,202 +1,251 @@
 # FitBridge 🏋️
 
-A mobile-first fitness application with AI-powered workout and diet plans, progress tracking, and gamification.
+AI-powered fitness app with workout/diet plans, progress tracking, and gamification.
+
+[![CI](https://github.com/your-org/fitbridge/actions/workflows/test.yml/badge.svg)](https://github.com/your-org/fitbridge/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+---
+
+## ✨ Features
+
+| Feature | Description |
+|---------|-------------|
+| 🤖 AI Coach | Personalized workout & diet plans |
+| 🔥 Streaks | Gamified consistency tracking |
+| 📊 Analytics | Progress charts and stats |
+| 💬 Chat | AI fitness coach conversations |
+| 📱 Mobile-First | Responsive design |
+
+---
 
 ## 🏗️ Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                        FITBRIDGE                                 │
-├─────────────────────────────────────────────────────────────────┤
-│  Frontend (React/React Native)                                   │
-│  ├── Dashboard, Workout, Diet, Activity, Chat, Profile          │
-│  ├── Supabase Client (Auth + Real-time)                         │
-│  └── API Client (→ Python Backend)                              │
-├─────────────────────────────────────────────────────────────────┤
-│  Supabase Cloud                                                  │
-│  ├── PostgreSQL Database                                        │
-│  ├── Authentication (Email/OAuth)                               │
-│  ├── Row Level Security (RLS)                                   │
-│  └── Edge Functions (optional)                                   │
-├─────────────────────────────────────────────────────────────────┤
-│  Python FastAPI Backend                                          │
-│  ├── AI Service (OpenAI/DeepSeek)                               │
-│  ├── Workout & Diet Generation                                  │
-│  ├── Chat Streaming                                             │
-│  └── Progress Analysis                                          │
-└─────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────┐
+│                         CLIENT                                  │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │  React 19 + TypeScript + Vite                            │  │
+│  │  ├── components/    UI Components                        │  │
+│  │  ├── services/      API Client, Supabase Client          │  │
+│  │  └── tests/         Vitest + React Testing Library       │  │
+│  └──────────────────────────────────────────────────────────┘  │
+└────────────────────────────┬───────────────────────────────────┘
+                             │ HTTP/SSE
+                             ▼
+┌────────────────────────────────────────────────────────────────┐
+│                       BACKEND (FastAPI)                         │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │  app/routers/       API Endpoints                        │  │
+│  │  app/services/      AI Service, Supabase Service         │  │
+│  │  tests/             pytest + httpx                       │  │
+│  └──────────────────────────────────────────────────────────┘  │
+└────────────────────────────┬───────────────────────────────────┘
+                             │
+              ┌──────────────┴──────────────┐
+              ▼                              ▼
+┌─────────────────────────┐    ┌─────────────────────────┐
+│      SUPABASE           │    │     AI PROVIDERS        │
+│  ├── PostgreSQL DB      │    │  ├── OpenAI GPT-4o      │
+│  ├── Authentication     │    │  └── DeepSeek           │
+│  └── Row Level Security │    │                         │
+└─────────────────────────┘    └─────────────────────────┘
 ```
+
+### Data Flow
+
+```
+User Action → Component → apiClient.ts → FastAPI → Services → Response
+                                              ↓
+                                        Supabase/AI
+```
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+| Tool | Version |
+|------|---------|
+| Node.js | 20+ |
+| Python | 3.10+ |
+| npm | 10+ |
+
+### Setup
+
+```bash
+# Clone
+git clone https://github.com/your-org/fitbridge.git
+cd fitbridge
+
+# Frontend
+npm install
+cp .env.example .env
+
+# Backend
+cd backend
+python -m venv venv
+venv\Scripts\activate  # Windows
+pip install -r requirements.txt
+cp .env.example .env
+
+# Start both
+cd ..
+npm run dev
+```
+
+---
+
+## 🧪 Testing
+
+```bash
+# Frontend
+npm run test:run        # Run once
+npm run test:coverage   # With coverage
+
+# Backend
+cd backend
+python -m pytest tests/ -v
+```
+
+---
 
 ## 📁 Project Structure
 
 ```
 fitbridge/
-├── components/           # React UI components
-│   ├── Dashboard.tsx
-│   ├── WorkoutTab.tsx
-│   ├── DietTab.tsx
-│   ├── ActivityTab.tsx
-│   ├── ChatTab.tsx
-│   ├── ProfileTab.tsx
-│   └── Navigation.tsx
-├── services/             # Frontend services
-│   ├── geminiService.ts  # Original Gemini AI (fallback)
-│   ├── apiClient.ts      # Python backend API client
-│   └── supabaseClient.ts # Supabase auth & database
-├── backend/              # Python FastAPI backend
-│   ├── app/
-│   │   ├── main.py       # FastAPI application
-│   │   ├── config.py     # Environment configuration
-│   │   ├── routers/      # API endpoints
-│   │   │   ├── health.py
-│   │   │   ├── ai.py
-│   │   │   ├── workout.py
-│   │   │   ├── diet.py
-│   │   │   └── chat.py
-│   │   └── services/     # Business logic
-│   │       ├── ai_service.py
-│   │       └── supabase_service.py
-│   ├── requirements.txt
-│   └── .env.example
-├── supabase/             # Database migrations
-│   └── migrations/
-│       └── 001_initial_schema.sql
-├── App.tsx               # Main React component
-├── types.ts              # TypeScript definitions
-└── package.json
+├── components/          # React UI
+├── services/            # API clients
+├── tests/               # Frontend tests
+├── backend/
+│   ├── app/routers/     # API endpoints
+│   ├── app/services/    # Business logic
+│   └── tests/           # Backend tests
+├── docs/                # Documentation
+│   ├── API.md           # API contracts
+│   ├── ARCHITECTURE.md  # Module breakdown
+│   └── ISSUES.md        # GitHub issues
+└── .github/workflows/   # CI/CD
 ```
 
-## 🚀 Quick Start
+---
 
-### 1. Set up Supabase
+## 🤝 Contributing
 
-1. Create a new project at [supabase.com](https://supabase.com)
-2. Go to **SQL Editor** and run the migration file:
-   - Copy contents from `supabase/migrations/001_initial_schema.sql`
-   - Execute the SQL
-3. Go to **Settings > API** and copy:
-   - Project URL
-   - `anon` public key
-   - `service_role` key (for backend only)
+We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
-### 2. Configure Frontend
+### Expectations
 
-```bash
-# Create environment file
-cp .env.example .env
+| Requirement | Details |
+|-------------|---------|
+| Tests | All PRs must pass existing tests |
+| Lint | Run `npm run lint` before pushing |
+| Format | Run `npm run format` for consistency |
+| PRs | Small, focused changes preferred |
+| Issues | Check existing issues before starting |
 
-# Edit .env with your Supabase credentials
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key
-VITE_API_URL=http://localhost:8000
+### For Interns
 
-# Install dependencies
-npm install
+1. Start with issues labeled `good first issue`
+2. Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+3. Review [docs/API.md](docs/API.md) for API contracts
+4. Ask questions in PR comments
 
-# Start development server
-npm run dev
-```
+---
 
-### 3. Configure Python Backend
+## 🗺️ Roadmap
 
-```bash
-cd backend
+### Q1 2025: Foundation ✅
 
-# Create virtual environment
-python -m venv venv
+- [x] Core workout/diet logging
+- [x] AI plan generation
+- [x] Streak system
+- [x] Basic analytics
+- [x] Test infrastructure
+- [x] CI/CD pipeline
 
-# Activate virtual environment
-# Windows:
-venv\Scripts\activate
-# macOS/Linux:
-source venv/bin/activate
+### Q2 2025: Enhancement
 
-# Install dependencies
-pip install -r requirements.txt
+- [ ] Workout templates library
+- [ ] Progress photos
+- [ ] Export data (CSV)
+- [ ] Rest timer
+- [ ] Toast notifications
+- [ ] Improved empty states
 
-# Create environment file
-cp .env.example .env
+### Q3 2025: Scale
 
-# Edit .env with your credentials
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-OPENAI_API_KEY=sk-your-openai-key
-AI_PROVIDER=openai
+- [ ] React Native mobile app
+- [ ] Push notifications
+- [ ] Social sharing
+- [ ] Weekly email reports
+- [ ] Multi-language support
 
-# Start the server
-cd app
-uvicorn main:app --reload --port 8000
-```
+### Q4 2025: Growth
 
-## 📊 Database Schema
+- [ ] Apple Health integration
+- [ ] Workout music integration
+- [ ] Group challenges
+- [ ] Personal trainer mode
 
-| Table | Purpose |
-|-------|---------|
-| `users` | User profiles and goals |
-| `daily_logs` | Daily calories, steps, workout status |
-| `workout_logs` | Individual workout sessions |
-| `diet_logs` | Meals and calorie intake |
-| `weekly_summary` | Precomputed analytics |
-| `streaks` | Gamification & consistency |
-| `ai_plans` | AI-generated plans |
-| `weight_history` | Weight tracking over time |
+---
 
-## 🔐 Security Features
+## 🎯 Milestones
 
-- **Row Level Security (RLS)**: Users can only access their own data
-- **API Keys Server-side**: AI provider keys stored only in Python backend
-- **Authenticated Requests**: All API calls require valid user tokens
+| Milestone | Target | Status |
+|-----------|--------|--------|
+| **v0.1** - MVP | Dec 2024 | ✅ Done |
+| **v0.2** - Testing | Dec 2024 | ✅ Done |
+| **v0.3** - Polish | Jan 2025 | 🔄 In Progress |
+| **v0.4** - Templates | Feb 2025 | ⏳ Planned |
+| **v1.0** - Mobile | Mar 2025 | ⏳ Planned |
 
-## 🤖 AI Providers
+### v0.3 Polish (Current)
 
-The app supports multiple AI providers:
+- [ ] Fix streak edge cases
+- [ ] Add loading skeletons
+- [ ] Improve error handling
+- [ ] Add toast notifications
+- [ ] Complete test coverage (70%)
 
-| Provider | Best For | Cost |
-|----------|----------|------|
-| OpenAI (GPT-4o) | Best quality | Higher |
-| DeepSeek | Cost-effective | Lower |
+> **Exit Criteria:** v0.3 is complete when all polish items are merged, CI is green, and no P0/P1 issues remain open.
 
-Configure in `backend/.env`:
-```env
-AI_PROVIDER=openai  # or 'deepseek'
-```
+### v0.4 Templates
 
-## 📱 Future: React Native Migration
+- [ ] Pre-built workout library
+- [ ] Meal plan templates
+- [ ] One-click start
+- [ ] Template customization
 
-The current web app is designed for easy migration to React Native:
+---
 
-1. Component structure is already mobile-first
-2. Services layer abstracts all data access
-3. Styling uses patterns compatible with NativeWind
+## 📚 Documentation
 
-## 🛠️ API Endpoints
+| Doc | Description |
+|-----|-------------|
+| [API.md](docs/API.md) | Full API contracts with examples |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Module breakdown |
+| [ISSUES.md](docs/ISSUES.md) | Ready-to-create GitHub issues |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Contribution guide |
+| [ISSUE_BACKLOG.md](ISSUE_BACKLOG.md) | Prioritized task list |
 
-### Health
-- `GET /health` - API status check
-- `GET /ping` - Quick ping
+---
 
-### AI Generation
-- `POST /api/ai/generate` - Generate workout or diet plan
-- `GET /api/ai/status` - AI service status
+## 🛠️ Tech Stack
 
-### Workouts
-- `POST /api/workout/log` - Log a workout
-- `GET /api/workout/logs` - Get workout history
-- `GET /api/workout/stats` - Get workout statistics
-- `DELETE /api/workout/logs/:id` - Delete a workout
+| Layer | Technology |
+|-------|------------|
+| Frontend | React 19, TypeScript, Vite |
+| Backend | Python, FastAPI |
+| Database | Supabase (PostgreSQL) |
+| AI | OpenAI, DeepSeek |
+| Testing | Vitest, pytest |
+| CI/CD | GitHub Actions |
 
-### Diet
-- `POST /api/diet/log` - Log a meal
-- `GET /api/diet/logs` - Get meal history
-- `GET /api/diet/logs/today` - Today's meals with totals
-- `GET /api/diet/stats` - Nutrition statistics
-
-### Chat
-- `POST /api/chat/send` - Send message to AI coach
-- `POST /api/chat/stream` - Stream AI response (SSE)
-- `GET /api/chat/suggestions` - Get suggested questions
+---
 
 ## 📄 License
 
-MIT License - See LICENSE file for details.
+MIT License - See [LICENSE](LICENSE) for details.
+

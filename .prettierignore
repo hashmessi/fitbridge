@@ -1,0 +1,8 @@
+dist
+node_modules
+backend
+mobile
+.next
+coverage
+*.min.js
+package-lock.json
