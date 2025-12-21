@@ -34,11 +34,10 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
-# Configure CORS
-settings = get_settings()
+# Configure CORS - allow all origins for Vercel preview URLs
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins_list,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
