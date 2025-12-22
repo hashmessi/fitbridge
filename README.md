@@ -7,21 +7,82 @@ AI-powered fitness app with workout/diet plans, progress tracking, and gamificat
 
 ---
 
+## 🌐 Live Demo
+
+**🚀 [Try FitBridge Live](https://fitbridge-l8518smkn-hashvanth21s-projects.vercel.app/)**
+
+> Experience the full app with AI-powered workout and diet plans, real-time chat, and progress tracking.
+
+---
+
 ## ✨ Features
+
+### Core Capabilities
 
 | Feature | Description |
 |---------|-------------|
-| 🤖 AI Coach | Personalized workout & diet plans |
-| 🔥 Streaks | Gamified consistency tracking |
-| 📊 Analytics | Progress charts and stats |
-| 💬 Chat | AI fitness coach conversations |
-| 📱 Mobile-First | Responsive design |
+| 🤖 **AI Coach** | Personalized workout & diet plans powered by GPT-4o/DeepSeek |
+| 🔥 **Streaks** | Gamified consistency tracking with XP rewards |
+| 📊 **Analytics** | Progress charts, calorie tracking, and workout stats |
+| 💬 **AI Chat** | Real-time conversations with AI fitness coach |
+| 📱 **Mobile-First** | Responsive design optimized for all devices |
+
+### AI-Powered Features
+
+| Feature | How It Works |
+|---------|-------------|
+| **Workout Plan Generation** | AI creates personalized workout routines based on goals, fitness level, and available equipment |
+| **Diet Plan Generation** | Custom meal plans with calorie targets, macros, and regional cuisine preferences (Indian, Mediterranean, etc.) |
+| **Chat with AI Coach** | Ask fitness questions, get form tips, nutrition advice, and motivation in real-time |
+
+### Authentication & Data
+
+| Feature | Technology |
+|---------|------------|
+| **Supabase Auth** | Secure email/password authentication with session management |
+| **Real-time Sync** | Instant data updates across devices using Supabase real-time |
+| **Row Level Security** | User data is isolated and protected at the database level |
 
 ---
 
 ## 🏗️ Architecture
 
+### System Overview
+
+```mermaid
+flowchart TB
+    subgraph Client["🖥️ Frontend (Vercel)"]
+        React["React 19 + TypeScript"]
+        Vite["Vite Build"]
+        UI["UI Components"]
+    end
+    
+    subgraph Backend["⚙️ Backend (Render)"]
+        FastAPI["FastAPI Server"]
+        AIService["AI Service"]
+        AuthMiddleware["Auth Middleware"]
+    end
+    
+    subgraph Supabase["🗄️ Supabase"]
+        PostgreSQL[("PostgreSQL")]
+        Auth["Authentication"]
+        RLS["Row Level Security"]
+    end
+    
+    subgraph AI["🤖 AI Providers"]
+        OpenAI["OpenAI GPT-4o"]
+        DeepSeek["DeepSeek"]
+    end
+    
+    Client <-->|"REST API"| Backend
+    Client <-->|"Auth & Realtime"| Supabase
+    Backend <-->|"User Data"| Supabase
+    Backend <-->|"AI Requests"| AI
 ```
+
+### Detailed Architecture
+
+```text
 ┌────────────────────────────────────────────────────────────────┐
 │                         CLIENT                                  │
 │  ┌──────────────────────────────────────────────────────────┐  │
@@ -30,7 +91,7 @@ AI-powered fitness app with workout/diet plans, progress tracking, and gamificat
 │  │  ├── services/      API Client, Supabase Client          │  │
 │  │  └── tests/         Vitest + React Testing Library       │  │
 │  └──────────────────────────────────────────────────────────┘  │
-└────────────────────────────┬───────────────────────────────────┘
+└────────────────────────────────┬───────────────────────────────┘
                              │ HTTP/SSE
                              ▼
 ┌────────────────────────────────────────────────────────────────┐
@@ -40,7 +101,7 @@ AI-powered fitness app with workout/diet plans, progress tracking, and gamificat
 │  │  app/services/      AI Service, Supabase Service         │  │
 │  │  tests/             pytest + httpx                       │  │
 │  └──────────────────────────────────────────────────────────┘  │
-└────────────────────────────┬───────────────────────────────────┘
+└────────────────────────────────┬───────────────────────────────┘
                              │
               ┌──────────────┴──────────────┐
               ▼                              ▼
@@ -54,10 +115,23 @@ AI-powered fitness app with workout/diet plans, progress tracking, and gamificat
 
 ### Data Flow
 
-```
-User Action → Component → apiClient.ts → FastAPI → Services → Response
-                                              ↓
-                                        Supabase/AI
+```mermaid
+sequenceDiagram
+    participant User
+    participant Frontend
+    participant Backend
+    participant Supabase
+    participant AI
+    
+    User->>Frontend: Interact with UI
+    Frontend->>Supabase: Authenticate
+    Supabase-->>Frontend: JWT Token
+    Frontend->>Backend: API Request + Token
+    Backend->>Supabase: Verify & Fetch Data
+    Backend->>AI: Generate Plan (if needed)
+    AI-->>Backend: AI Response
+    Backend-->>Frontend: JSON Response
+    Frontend-->>User: Update UI
 ```
 
 ---
@@ -97,6 +171,96 @@ npm run dev
 
 ---
 
+## 🚀 Production Setup
+
+### Environment Variables
+
+#### Frontend (`.env`)
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `VITE_API_URL` | Backend API URL (e.g., `https://fitbridge-api.onrender.com`) | ✅ |
+| `VITE_SUPABASE_URL` | Supabase project URL | ✅ |
+| `VITE_SUPABASE_ANON_KEY` | Supabase anonymous key | ✅ |
+
+#### Backend (`backend/.env`)
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `SUPABASE_URL` | Supabase project URL | ✅ |
+| `SUPABASE_ANON_KEY` | Supabase anonymous key | ✅ |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (admin) | ✅ |
+| `OPENAI_API_KEY` | OpenAI API key | ⚡ |
+| `OPENAI_MODEL` | Model to use (default: `gpt-4o`) | ❌ |
+| `DEEPSEEK_API_KEY` | DeepSeek API key (alternative) | ⚡ |
+| `AI_PROVIDER` | `openai` or `deepseek` | ✅ |
+| `HOST` | Server host (default: `0.0.0.0`) | ❌ |
+| `PORT` | Server port (default: `8000`) | ❌ |
+| `CORS_ORIGINS` | Allowed CORS origins (comma-separated) | ✅ |
+| `JWT_SECRET` | JWT signing secret | ✅ |
+
+> ⚡ = Required based on selected `AI_PROVIDER`
+
+### Deployment Instructions
+
+#### Frontend (Vercel)
+
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Deploy
+vercel --prod
+```
+
+Configure environment variables in Vercel Dashboard → Settings → Environment Variables.
+
+#### Backend (Render)
+
+1. **Connect Repository**: Link your GitHub repo to Render
+2. **Configure Service**:
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+   - **Root Directory**: `backend`
+3. **Set Environment Variables**: Add all backend variables in Render dashboard
+4. **Deploy**: Render auto-deploys on push to main
+
+Alternatively, use the Blueprint:
+
+```bash
+# One-click deploy with render.yaml
+https://render.com/deploy?repo=https://github.com/your-org/fitbridge
+```
+
+### Backend Health Checks
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/health` | GET | Basic health check, returns `{"status": "healthy"}` |
+| `/docs` | GET | Interactive API documentation (Swagger UI) |
+| `/redoc` | GET | Alternative API docs (ReDoc) |
+
+**Check health:**
+
+```bash
+# Local
+curl http://localhost:8000/health
+
+# Production
+curl https://fitbridge-api.onrender.com/health
+```
+
+**Expected response:**
+
+```json
+{
+  "status": "healthy",
+  "version": "1.0.0"
+}
+```
+
+---
+
 ## 🧪 Testing
 
 ```bash
@@ -113,7 +277,7 @@ python -m pytest tests/ -v
 
 ## 📁 Project Structure
 
-```
+```text
 fitbridge/
 ├── components/          # React UI
 ├── services/            # API clients
@@ -248,4 +412,3 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 ## 📄 License
 
 MIT License - See [LICENSE](LICENSE) for details.
-
