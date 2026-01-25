@@ -147,9 +147,10 @@ This is **not a concept demo** — it is a working product.
 ## 🚀 Live Demo
 
 🌐 **Try FitBridge Live**  
-*(https://fitbridge.vercel.app/)*
+-*(https://fitbridge.vercel.app/)*
+
 🚀 **Demo video**
-*(https://drive.google.com/file/d/1QHmggcg-M-U-LPUYfeurpmnnskEyQczn/view)*
+-*(https://drive.google.com/file/d/1QHmggcg-M-U-LPUYfeurpmnnskEyQczn/view)*
 
 Includes:
 - AI workout & diet generation
