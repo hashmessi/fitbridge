@@ -147,7 +147,9 @@ This is **not a concept demo** — it is a working product.
 ## 🚀 Live Demo
 
 🌐 **Try FitBridge Live**  
-*(Add deployed app URL here)*
+*(https://fitbridge.vercel.app/)*
+🚀 **Demo video**
+*(https://drive.google.com/file/d/1QHmggcg-M-U-LPUYfeurpmnnskEyQczn/view)*
 
 Includes:
 - AI workout & diet generation
@@ -171,7 +173,7 @@ Judges can validate:
 
 ---
 
-## 🏆 Hackathon Alignment (ET GenAI Hackathon)
+## 🏆 Hackathon Alignment 
 
 **Innovation:**  
 GenAI used for real-time decision-making, not static content.
