@@ -3,13 +3,14 @@ Chat Router
 AI-powered fitness coach chat endpoint
 """
 
-from fastapi import APIRouter, HTTPException, Depends, Header
+from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from typing import List, Optional
 import json
 
 from app.services.ai_service import AIService
+from app.dependencies.auth import get_current_user
 from app.config import get_settings
 
 router = APIRouter()
@@ -34,18 +35,14 @@ def get_ai_service() -> AIService:
     return AIService(settings)
 
 
-async def get_user_id(authorization: str = Header(default="")) -> Optional[str]:
-    """Extract user ID from authorization header (optional for chat)"""
-    if authorization.startswith("Bearer "):
-        return authorization[7:]
-    return authorization if authorization else None
+
 
 
 @router.post("/send")
 async def send_message(
     request: ChatRequest,
     ai_service: AIService = Depends(get_ai_service),
-    user_id: Optional[str] = Depends(get_user_id)
+    current_user=Depends(get_current_user)
 ):
     """
     Send a message to the AI fitness coach and get a response

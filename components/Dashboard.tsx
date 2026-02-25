@@ -46,13 +46,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onNavigate }) => {
 
   const loadDashboardData = async () => {
     const userId = localStorage.getItem('fitbridge_token');
-    console.log('[Dashboard] Loading data for user:', userId);
-    
+        
     try {
       const { isSupabaseConfigured, getTotalXP, getUserStreaks, getWorkoutLogs, getDietLogs } = await import('../services/supabaseClient');
       
       if (isSupabaseConfigured() && userId) {
-        console.log('[Dashboard] Fetching from Supabase...');
         // Fetch from Supabase
         const [xpData, streaks, workouts, meals] = await Promise.all([
           getTotalXP(userId),
@@ -61,19 +59,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onNavigate }) => {
           getDietLogs(userId, new Date().toISOString().split('T')[0], 20)
         ]);
         
-        console.log('[Dashboard] Data fetched:', { xpData, streaks: streaks.length, workouts: workouts.length, meals: meals.length });
-        
+                
         // Set XP and level
         setXp(xpData.xp);
         
         // Set streak from workout streak
         const workoutStreak = streaks.find(s => s.streak_type === 'workout');
-        console.log('[Dashboard] Workout streak from Supabase:', workoutStreak);
-        
+                
         // If Supabase has no streak data, calculate from localStorage
         if (!workoutStreak || workoutStreak.current_streak === 0) {
-          console.log('[Dashboard] No Supabase streak, calculating from localStorage...');
-          const savedWorkouts = JSON.parse(localStorage.getItem('fitbridge_manual_workouts') || '[]');
+                    const savedWorkouts = JSON.parse(localStorage.getItem('fitbridge_manual_workouts') || '[]');
           let streakCount = 0;
           
           if (savedWorkouts.length > 0) {
@@ -102,8 +97,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onNavigate }) => {
               }
             }
           }
-          console.log('[Dashboard] Calculated streak from localStorage:', streakCount);
-          setStreak(streakCount);
+                    setStreak(streakCount);
         } else {
           setStreak(workoutStreak.current_streak || 0);
         }
@@ -113,12 +107,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onNavigate }) => {
         // Check today's workouts
         const today = new Date().toISOString().split('T')[0];
         let todayWorkouts = workouts.filter(w => w.workout_date === today);
-        console.log('[Dashboard] Today workouts from Supabase:', todayWorkouts);
-        
+                
         // If no Supabase workouts, check localStorage
         if (todayWorkouts.length === 0) {
-          console.log('[Dashboard] Checking localStorage for today\'s workouts...');
-          const savedWorkouts = JSON.parse(localStorage.getItem('fitbridge_manual_workouts') || '[]');
+                    const savedWorkouts = JSON.parse(localStorage.getItem('fitbridge_manual_workouts') || '[]');
           const todayDate = new Date();
           todayDate.setHours(0,0,0,0);
           
@@ -128,8 +120,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onNavigate }) => {
             return wDate.getTime() === todayDate.getTime();
           });
           
-          console.log('[Dashboard] Found workouts in localStorage:', localTodayWorkouts.length);
-          if (localTodayWorkouts.length > 0) {
+                    if (localTodayWorkouts.length > 0) {
             setTodayWorkout(localTodayWorkouts[0].activity || 'Workout');
           } else {
             setTodayWorkout(null);
@@ -141,10 +132,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onNavigate }) => {
         // Calculate today's calories from meals
         const todayCaloriesSum = meals.reduce((sum, m) => sum + (m.calories || 0), 0);
         setTodayCalories(todayCaloriesSum);
-        console.log('[Dashboard] Daily load will be:', { workout: !!todayWorkouts.length, calories: todayCaloriesSum });
-        
+                
       } else {
-        console.log('[Dashboard] Using localStorage fallback');
         // Fallback to localStorage for demo mode
         const savedData = localStorage.getItem('fitbridge_dashboard_data');
         if (savedData) {

@@ -3,12 +3,13 @@ Workout Router
 Endpoints for workout logging and retrieval
 """
 
-from fastapi import APIRouter, HTTPException, Depends, Header
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from typing import Optional, List
 from datetime import date
 
 from app.services.supabase_service import SupabaseService
+from app.dependencies.auth import get_current_user
 from app.config import get_settings
 
 router = APIRouter()
@@ -44,23 +45,18 @@ def get_supabase_service() -> SupabaseService:
     return SupabaseService(settings)
 
 
-async def get_user_id(authorization: str = Header(...)) -> str:
-    """Extract user ID from authorization header"""
-    # In production, verify JWT and extract user_id
-    # For now, accept user_id directly for development
-    if authorization.startswith("Bearer "):
-        return authorization[7:]
-    return authorization
+
 
 
 @router.post("/log")
 async def create_workout_log(
     workout: WorkoutLogCreate,
-    user_id: str = Depends(get_user_id),
+    current_user=Depends(get_current_user),
     db: SupabaseService = Depends(get_supabase_service)
 ):
     """Log a new workout session"""
     try:
+        user_id = current_user.id
         workout_date = workout.workout_date or date.today().isoformat()
         
         result = await db.create_workout_log(
@@ -93,11 +89,12 @@ async def create_workout_log(
 async def get_workout_logs(
     limit: int = 10,
     offset: int = 0,
-    user_id: str = Depends(get_user_id),
+    current_user=Depends(get_current_user),
     db: SupabaseService = Depends(get_supabase_service)
 ):
     """Get user's workout logs with pagination"""
     try:
+        user_id = current_user.id
         logs = await db.get_workout_logs(user_id, limit, offset)
         return {"success": True, "data": logs}
     except Exception as e:
@@ -107,11 +104,12 @@ async def get_workout_logs(
 @router.get("/logs/{workout_id}")
 async def get_workout_log(
     workout_id: str,
-    user_id: str = Depends(get_user_id),
+    current_user=Depends(get_current_user),
     db: SupabaseService = Depends(get_supabase_service)
 ):
     """Get a specific workout log"""
     try:
+        user_id = current_user.id
         log = await db.get_workout_log(user_id, workout_id)
         if not log:
             raise HTTPException(status_code=404, detail="Workout not found")
@@ -125,11 +123,12 @@ async def get_workout_log(
 @router.delete("/logs/{workout_id}")
 async def delete_workout_log(
     workout_id: str,
-    user_id: str = Depends(get_user_id),
+    current_user=Depends(get_current_user),
     db: SupabaseService = Depends(get_supabase_service)
 ):
     """Delete a workout log"""
     try:
+        user_id = current_user.id
         await db.delete_workout_log(user_id, workout_id)
         return {"success": True, "message": "Workout deleted"}
     except Exception as e:
@@ -139,11 +138,12 @@ async def delete_workout_log(
 @router.get("/stats")
 async def get_workout_stats(
     days: int = 7,
-    user_id: str = Depends(get_user_id),
+    current_user=Depends(get_current_user),
     db: SupabaseService = Depends(get_supabase_service)
 ):
     """Get workout statistics for the specified period"""
     try:
+        user_id = current_user.id
         stats = await db.get_workout_stats(user_id, days)
         return {"success": True, "data": stats}
     except Exception as e:

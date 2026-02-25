@@ -70,8 +70,6 @@ async def generate_plan(
     except Exception as e:
         import traceback
         error_details = f"{type(e).__name__}: {str(e)}"
-        print(f"AI Generation Error: {error_details}")
-        print(traceback.format_exc())
         return GeneratePlanResponse(success=False, error=error_details)
 
 

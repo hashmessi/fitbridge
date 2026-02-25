@@ -149,16 +149,25 @@ def mock_diet_response():
 # -----------------------------------------------------------------------------
 
 @pytest.fixture
-def client(mock_supabase_service):
-    """FastAPI test client with mocked Supabase service."""
+def client(mock_supabase_service, test_user_id):
+    """FastAPI test client with mocked Supabase service and auth."""
     from app.routers import workout, diet
+    from app.dependencies.auth import get_current_user
+    
+    # Mock user object returned by Supabase auth
+    mock_user = MagicMock()
+    mock_user.id = test_user_id
     
     # Override the dependency
     def get_mock_supabase():
         return mock_supabase_service
     
+    async def get_mock_user():
+        return mock_user
+    
     app.dependency_overrides[workout.get_supabase_service] = get_mock_supabase
     app.dependency_overrides[diet.get_supabase_service] = get_mock_supabase
+    app.dependency_overrides[get_current_user] = get_mock_user
     
     with TestClient(app) as test_client:
         yield test_client

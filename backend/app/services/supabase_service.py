@@ -26,7 +26,6 @@ class SupabaseService:
                     settings.supabase_service_role_key
                 )
             except Exception as e:
-                print(f"Failed to connect to Supabase: {e}")
                 self.is_mock = True
         
         # Mock storage
@@ -86,6 +85,9 @@ class SupabaseService:
         workout_date: Optional[str] = None
     ) -> Dict:
         """Create a new workout log entry"""
+        if not user_id:
+            raise ValueError("user_id is required")
+
         log_data = {
             'id': str(uuid.uuid4()),
             'user_id': user_id,
@@ -105,6 +107,8 @@ class SupabaseService:
             return log_data
         
         response = self.client.table('workout_logs').insert(log_data).execute()
+        if hasattr(response, 'error') and response.error:
+            raise Exception(response.error.message)
         return response.data[0] if response.data else None
     
     async def get_workout_logs(
@@ -213,6 +217,9 @@ class SupabaseService:
         log_date: Optional[str] = None
     ) -> Dict:
         """Create a new diet log entry"""
+        if not user_id:
+            raise ValueError("user_id is required")
+
         log_data = {
             'id': str(uuid.uuid4()),
             'user_id': user_id,
@@ -233,6 +240,8 @@ class SupabaseService:
             return log_data
         
         response = self.client.table('diet_logs').insert(log_data).execute()
+        if hasattr(response, 'error') and response.error:
+            raise Exception(response.error.message)
         return response.data[0] if response.data else None
     
     async def get_diet_logs(
@@ -516,6 +525,9 @@ class SupabaseService:
         generated_by: str = "openai"
     ) -> Dict:
         """Save an AI-generated plan"""
+        if not user_id:
+            raise ValueError("user_id is required")
+
         plan = {
             'id': str(uuid.uuid4()),
             'user_id': user_id,
@@ -533,6 +545,8 @@ class SupabaseService:
             return plan
         
         response = self.client.table('ai_plans').insert(plan).execute()
+        if hasattr(response, 'error') and response.error:
+            raise Exception(response.error.message)
         return response.data[0] if response.data else None
     
     async def get_active_plans(self, user_id: str) -> List[Dict]:

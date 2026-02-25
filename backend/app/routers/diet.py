@@ -3,12 +3,13 @@ Diet Router
 Endpoints for meal logging and nutrition tracking
 """
 
-from fastapi import APIRouter, HTTPException, Depends, Header
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from typing import Optional, List
 from datetime import date
 
 from app.services.supabase_service import SupabaseService
+from app.dependencies.auth import get_current_user
 from app.config import get_settings
 
 router = APIRouter()
@@ -46,21 +47,18 @@ def get_supabase_service() -> SupabaseService:
     return SupabaseService(settings)
 
 
-async def get_user_id(authorization: str = Header(...)) -> str:
-    """Extract user ID from authorization header"""
-    if authorization.startswith("Bearer "):
-        return authorization[7:]
-    return authorization
+
 
 
 @router.post("/log")
 async def create_meal_log(
     meal: MealLogCreate,
-    user_id: str = Depends(get_user_id),
+    current_user=Depends(get_current_user),
     db: SupabaseService = Depends(get_supabase_service)
 ):
     """Log a new meal"""
     try:
+        user_id = current_user.id
         log_date = meal.log_date or date.today().isoformat()
         
         result = await db.create_diet_log(
@@ -94,11 +92,12 @@ async def get_meal_logs(
     limit: int = 20,
     offset: int = 0,
     log_date: Optional[str] = None,
-    user_id: str = Depends(get_user_id),
+    current_user=Depends(get_current_user),
     db: SupabaseService = Depends(get_supabase_service)
 ):
     """Get user's meal logs with optional date filter"""
     try:
+        user_id = current_user.id
         logs = await db.get_diet_logs(user_id, limit, offset, log_date)
         return {"success": True, "data": logs}
     except Exception as e:
@@ -107,11 +106,12 @@ async def get_meal_logs(
 
 @router.get("/logs/today")
 async def get_today_meals(
-    user_id: str = Depends(get_user_id),
+    current_user=Depends(get_current_user),
     db: SupabaseService = Depends(get_supabase_service)
 ):
     """Get today's meals with summary"""
     try:
+        user_id = current_user.id
         today = date.today().isoformat()
         logs = await db.get_diet_logs(user_id, limit=20, log_date=today)
         
@@ -140,11 +140,12 @@ async def get_today_meals(
 @router.delete("/logs/{meal_id}")
 async def delete_meal_log(
     meal_id: str,
-    user_id: str = Depends(get_user_id),
+    current_user=Depends(get_current_user),
     db: SupabaseService = Depends(get_supabase_service)
 ):
     """Delete a meal log"""
     try:
+        user_id = current_user.id
         await db.delete_diet_log(user_id, meal_id)
         return {"success": True, "message": "Meal deleted"}
     except Exception as e:
@@ -154,11 +155,12 @@ async def delete_meal_log(
 @router.get("/stats")
 async def get_diet_stats(
     days: int = 7,
-    user_id: str = Depends(get_user_id),
+    current_user=Depends(get_current_user),
     db: SupabaseService = Depends(get_supabase_service)
 ):
     """Get nutrition statistics for the specified period"""
     try:
+        user_id = current_user.id
         stats = await db.get_diet_stats(user_id, days)
         return {"success": True, "data": stats}
     except Exception as e:

@@ -3,8 +3,9 @@ FitBridge FastAPI Main Application
 Entry point for the AI backend server
 """
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 
 from app.config import get_settings
@@ -16,12 +17,8 @@ async def lifespan(app: FastAPI):
     """Application lifespan handler - startup and shutdown"""
     # Startup
     settings = get_settings()
-    print("FitBridge AI Backend starting...")
-    print(f"AI Provider: {settings.ai_provider}")
-    print(f"Supabase URL: {settings.supabase_url[:30]}...")
     yield
     # Shutdown
-    print("FitBridge AI Backend shutting down...")
 
 
 # Create FastAPI application
@@ -34,14 +31,24 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
-# Configure CORS - allow all origins for Vercel preview URLs
+# Configure CORS - restricted to safe origins from settings
+_settings = get_settings()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_settings.cors_origins_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    """Standardized error response format"""
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"success": False, "error": exc.detail}
+    )
 
 # Include routers
 app.include_router(health.router, tags=["Health"])
@@ -64,8 +71,9 @@ async def root():
 
 if __name__ == "__main__":
     import uvicorn
+    settings = get_settings()
     uvicorn.run(
-        "main:app",
+        "app.main:app",
         host=settings.host,
         port=settings.port,
         reload=settings.debug
