@@ -57,11 +57,15 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess, onSkip })
         const { user } = await signIn(email, password);
         onAuthSuccess(user);
       } else {
-        const { user } = await signUp(email, password, name);
-        if (user) {
-          onAuthSuccess(user);
+        const result = await signUp(email, password, name);
+        if (result.session && result.user) {
+          // Email confirmation disabled — logged in immediately
+          onAuthSuccess(result.user);
+        } else if (result.user && !result.session) {
+          // Email confirmation required — prompt user to confirm
+          setError('✉️ Check your email and click the confirmation link, then sign in here.');
         } else {
-          setError('Check your email to confirm your account!');
+          setError('Sign up failed. Please try again.');
         }
       }
     } catch (err: any) {
