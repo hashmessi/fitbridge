@@ -4,7 +4,7 @@
  */
 
 // Configuration
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://fitbridge-api.onrender.com";
 
 // Types
 export interface ApiResponse<T> {
@@ -116,7 +116,9 @@ export async function generateWorkoutPlan(
   userDescription: string,
   userProfile?: ApiUserProfile
 ): Promise<ApiResponse<WorkoutPlan>> {
-  const response = await apiCall<{ plan: WorkoutPlan }>("/api/ai/generate", {
+  // The backend returns: { success: bool, plan: {...} | null, error: str | null }
+  // apiCall wraps this as: { success: true, data: { success, plan, error } }
+  const response = await apiCall<{ success: boolean; plan: WorkoutPlan | null; error: string | null }>("/api/ai/generate", {
     method: "POST",
     body: JSON.stringify({
       user_description: userDescription,
@@ -125,17 +127,19 @@ export async function generateWorkoutPlan(
     }),
   });
 
-  if (response.success && response.data) {
+  if (response.success && response.data?.success && response.data.plan) {
     return { success: true, data: response.data.plan };
   }
-  return { success: false, error: response.error };
+  const errorMsg = response.data?.error || response.error || "AI generation failed";
+  return { success: false, error: errorMsg };
 }
 
 export async function generateDietPlan(
   userDescription: string,
   userProfile?: ApiUserProfile
 ): Promise<ApiResponse<DietPlan>> {
-  const response = await apiCall<{ plan: DietPlan }>("/api/ai/generate", {
+  // The backend returns: { success: bool, plan: {...} | null, error: str | null }
+  const response = await apiCall<{ success: boolean; plan: DietPlan | null; error: string | null }>("/api/ai/generate", {
     method: "POST",
     body: JSON.stringify({
       user_description: userDescription,
@@ -144,10 +148,11 @@ export async function generateDietPlan(
     }),
   });
 
-  if (response.success && response.data) {
+  if (response.success && response.data?.success && response.data.plan) {
     return { success: true, data: response.data.plan };
   }
-  return { success: false, error: response.error };
+  const errorMsg = response.data?.error || response.error || "AI generation failed";
+  return { success: false, error: errorMsg };
 }
 
 // ==========================================

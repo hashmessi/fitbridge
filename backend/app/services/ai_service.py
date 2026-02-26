@@ -113,10 +113,14 @@ class AIService:
             from openai import AsyncOpenAI
             self.client = AsyncOpenAI(
                 api_key=settings.deepseek_api_key,
-                base_url=settings.deepseek_base_url
+                base_url=settings.deepseek_base_url,
+                default_headers={
+                    "HTTP-Referer": "https://fitbridge.vercel.app", # Required for OpenRouter free tier
+                    "X-Title": "FitBridge"
+                }
             )
-            self.model = settings.deepseek_model
-    
+            # Use .strip() to guard against trailing newlines/spaces in env vars (common paste issue)
+            self.model = settings.deepseek_model.strip()
     def is_ready(self) -> bool:
         """Check if the AI service is properly configured"""
         if self.provider == "mock":
@@ -176,18 +180,20 @@ Structure the plan into days if appropriate for the goal/duration.
 The plan MUST contain real, executable physical exercises.
 Return ONLY valid JSON, no additional text."""
         
-        response = await self.client.chat.completions.create(
-            model=self.model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
-            response_format={"type": "json_object"},
-            temperature=0.7,
-            max_tokens=2000
-        )
-        
-        content = response.choices[0].message.content
+        try:
+            response = await self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                response_format={"type": "json_object"},
+                temperature=0.7,
+                max_tokens=2000
+            )
+            content = response.choices[0].message.content
+        except Exception as e:
+            raise ValueError(f"AI API Error ({type(e).__name__}): {str(e)}")
         
         try:
             # Handle potential thinking tags or markdown code blocks
@@ -265,19 +271,21 @@ Generate a daily diet plan for: {user_description}
 Ensure all meals are practical and include accurate nutritional information.
 Return ONLY valid JSON, no additional text."""
         
-        response = await self.client.chat.completions.create(
-            model=self.model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
-            response_format={"type": "json_object"},
-            temperature=0.7,
-            max_tokens=1500
-        )
-        
-        content = response.choices[0].message.content
-        return json.loads(content)
+        try:
+            response = await self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                response_format={"type": "json_object"},
+                temperature=0.7,
+                max_tokens=1500
+            )
+            content = response.choices[0].message.content
+            return json.loads(content)
+        except Exception as e:
+            raise ValueError(f"AI API Error ({type(e).__name__}): {str(e)}")
     
     async def chat(
         self,
@@ -333,14 +341,16 @@ User Context:
         # Add current message
         messages.append({"role": "user", "content": message})
         
-        response = await self.client.chat.completions.create(
-            model=self.model,
-            messages=messages,
-            temperature=0.8,
-            max_tokens=1000
-        )
-        
-        return response.choices[0].message.content
+        try:
+            response = await self.client.chat.completions.create(
+                model=self.model,
+                messages=messages,
+                temperature=0.8,
+                max_tokens=1000
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            return f"Error communicating with AI coach: {str(e)}"
     
     async def chat_stream(
         self,
@@ -427,15 +437,17 @@ Return JSON with: summary (string), achievements (array), recommendations (array
 
 Return insights in JSON format."""
         
-        response = await self.client.chat.completions.create(
-            model=self.model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
-            response_format={"type": "json_object"},
-            temperature=0.7,
-            max_tokens=800
-        )
-        
-        return json.loads(response.choices[0].message.content)
+        try:
+            response = await self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                response_format={"type": "json_object"},
+                temperature=0.7,
+                max_tokens=800
+            )
+            return json.loads(response.choices[0].message.content)
+        except Exception as e:
+            raise ValueError(f"AI API Error ({type(e).__name__}): {str(e)}")

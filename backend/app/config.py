@@ -28,8 +28,7 @@ class Settings(BaseSettings):
     host: str = "0.0.0.0"
     port: int = 8000
     debug: bool = False
-    cors_origins: str = "http://localhost:3000,http://localhost:5173,https://fitbridge.vercel.app,https://*.vercel.app"
-    
+    cors_origins: str = "http://localhost:3000,http://localhost:5173,https://fitbridge.vercel.app"    
     # Security
     jwt_secret: str
     
@@ -37,6 +36,11 @@ class Settings(BaseSettings):
     def cors_origins_list(self) -> List[str]:
         """Parse CORS origins from comma-separated string"""
         return [origin.strip() for origin in self.cors_origins.split(",")]
+    
+    @property
+    def deepseek_model_clean(self) -> str:
+        """Return deepseek model name with whitespace stripped (prevents newline issues from env vars)"""
+        return self.deepseek_model.strip()
     
     class Config:
         env_file = ".env"
