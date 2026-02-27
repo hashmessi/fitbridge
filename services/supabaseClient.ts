@@ -123,6 +123,7 @@ export async function signIn(email: string, password: string) {
   
   if (data.session) {
     localStorage.setItem('fitbridge_token', data.user.id);
+    localStorage.setItem('fitbridge_access_token', data.session.access_token);
   }
   
   return data;
@@ -142,6 +143,7 @@ export async function signInWithGoogle() {
 
 export async function signOut() {
   localStorage.removeItem('fitbridge_token');
+  localStorage.removeItem('fitbridge_access_token');
   const { error } = await supabase.auth.signOut();
   if (error) throw error;
 }
@@ -155,6 +157,7 @@ export async function getSession() {
     
     if (data.session) {
       localStorage.setItem('fitbridge_token', data.session.user.id);
+      localStorage.setItem('fitbridge_access_token', data.session.access_token);
     }
     
     return data.session;
@@ -184,8 +187,10 @@ export function onAuthStateChange(
   return supabase.auth.onAuthStateChange((event, session) => {
     if (session) {
       localStorage.setItem('fitbridge_token', session.user.id);
+      localStorage.setItem('fitbridge_access_token', session.access_token);
     } else {
       localStorage.removeItem('fitbridge_token');
+      localStorage.removeItem('fitbridge_access_token');
     }
     callback(event, session);
   });
