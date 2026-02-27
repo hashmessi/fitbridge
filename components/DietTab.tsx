@@ -26,16 +26,52 @@ export const DietTab: React.FC = () => {
     const [manualForm, setManualForm] = useState({ name: '', calories: '', protein: '', carbs: '', fats: '' });
 
     useEffect(() => {
-        const savedMeals = localStorage.getItem('fitbridge_manual_meals');
-        if (savedMeals) {
-            setManualMeals(JSON.parse(savedMeals));
-        }
-        // Load saved diet plan
-        const savedPlan = localStorage.getItem('fitbridge_saved_diet_plan');
-        if (savedPlan) {
-            setDietPlan(JSON.parse(savedPlan));
-            setIsSaved(true);
-        }
+        const loadDietData = async () => {
+            // Try to load meal logs from Supabase first
+            try {
+                const { getDietLogs, isSupabaseConfigured } = await import('../services/supabaseClient');
+                const userId = localStorage.getItem('fitbridge_token');
+                
+                if (isSupabaseConfigured() && userId) {
+                    const dbMeals = await getDietLogs(userId, undefined, 50);
+                    if (dbMeals && dbMeals.length > 0) {
+                        const mappedMeals: ManualMeal[] = dbMeals.map((m: any) => ({
+                            id: m.id || Date.now().toString(),
+                            name: m.meal_name,
+                            calories: m.calories || 0,
+                            protein: m.protein || 0,
+                            carbs: m.carbs || 0,
+                            fats: m.fats || 0,
+                            timestamp: new Date(m.log_date || m.created_at).getTime(),
+                        }));
+                        setManualMeals(mappedMeals);
+                        localStorage.setItem('fitbridge_manual_meals', JSON.stringify(mappedMeals));
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to load meals from Supabase:', err);
+            }
+
+            // Fallback: load from localStorage if no Supabase data was loaded
+            {
+                const savedMeals = localStorage.getItem('fitbridge_manual_meals');
+                if (savedMeals) {
+                    const parsed = JSON.parse(savedMeals);
+                    if (parsed.length > 0) {
+                        setManualMeals(prev => prev.length === 0 ? parsed : prev);
+                    }
+                }
+            }
+            
+            // Load saved diet plan from localStorage (session cache for AI plans)
+            const savedPlan = localStorage.getItem('fitbridge_saved_diet_plan');
+            if (savedPlan) {
+                setDietPlan(JSON.parse(savedPlan));
+                setIsSaved(true);
+            }
+        };
+
+        loadDietData();
     }, []);
 
     const handleGenerate = async () => {

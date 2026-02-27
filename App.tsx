@@ -95,7 +95,7 @@ const App: React.FC = () => {
               weight: profile.weight || 70,
               height: profile.height || 170,
               goal: profile.goal,
-              level: profile.fitness_level || 'Intermediate',
+              level: (profile.fitness_level || 'Intermediate') as 'Beginner' | 'Intermediate' | 'Advanced',
               streak: workoutStreak?.current_streak || 0,
               xp: xp,
               levelTitle: title,
@@ -126,14 +126,54 @@ const App: React.FC = () => {
     }
   };
 
-  const handleAuthSuccess = (user: any) => {
+  const handleAuthSuccess = async (user: any) => {
     setCurrentUser(user);
     
     // Save to localStorage for demo mode
     localStorage.setItem('fitbridge_demo_user', JSON.stringify(user));
     localStorage.setItem('fitbridge_token', user.id);
     
-    // Check if returning user with profile
+    // Check Supabase first for returning user profile
+    try {
+      const { 
+        getUserProfile, 
+        isSupabaseConfigured, 
+        getTotalXP, 
+        getUserStreaks 
+      } = await import('./services/supabaseClient');
+      
+      if (isSupabaseConfigured()) {
+        const profile = await getUserProfile(user.id);
+        
+        if (profile && profile.goal) {
+          // Returning user — load from Supabase
+          const { xp, title } = await getTotalXP(user.id);
+          const streaks = await getUserStreaks(user.id);
+          const workoutStreak = streaks.find((s: any) => s.streak_type === 'workout');
+          
+          setUserProfile({
+            name: profile.name || 'User',
+            weight: profile.weight || 70,
+            height: profile.height || 170,
+            goal: profile.goal,
+            level: (profile.fitness_level || 'Intermediate') as 'Beginner' | 'Intermediate' | 'Advanced',
+            streak: workoutStreak?.current_streak || 0,
+            xp: xp,
+            levelTitle: title,
+          });
+          
+          // Cache in localStorage too
+          localStorage.setItem('fitbridge_user_profile', JSON.stringify(profile));
+          
+          setAppState('app');
+          return;
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch profile from Supabase:', err);
+    }
+    
+    // Fallback: check localStorage for demo mode
     const savedProfile = localStorage.getItem('fitbridge_user_profile');
     if (savedProfile) {
       const profile = JSON.parse(savedProfile);

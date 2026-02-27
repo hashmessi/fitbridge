@@ -83,14 +83,21 @@ export const OnboardingScreen: React.FC<OnboardingProps> = ({ userId, onComplete
           fitness_level: fitnessLevel,
         };
 
-        // Try to save to Supabase if configured
+        // Save to Supabase — try INSERT first, fallback to UPDATE
         try {
-          const { updateUserProfile, isSupabaseConfigured } = await import('../services/supabaseClient');
+          const { createUserProfile, updateUserProfile, isSupabaseConfigured } = await import('../services/supabaseClient');
           if (isSupabaseConfigured()) {
-            await updateUserProfile(userId, profile);
+            try {
+              await createUserProfile(userId, { ...profile, email: '' });
+              console.warn('User profile created in Supabase');
+            } catch {
+              // Row may already exist (e.g. re-onboarding) — update instead
+              await updateUserProfile(userId, profile);
+              console.warn('User profile updated in Supabase');
+            }
           }
         } catch (err) {
-          console.log('Supabase not configured, continuing in demo mode');
+          console.error('Failed to save profile to Supabase:', err);
         }
 
         onComplete(profile);

@@ -50,14 +50,46 @@ export const WorkoutTab: React.FC = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem('fitbridge_workout');
-    if (saved) {
+    const loadWorkoutData = async () => {
+      // Check for saved AI workout plan in localStorage (session cache)
+      const saved = localStorage.getItem('fitbridge_workout');
+      if (saved) {
         setHasSavedWorkout(true);
-    }
-    const savedLogs = localStorage.getItem('fitbridge_manual_workouts');
-    if (savedLogs) {
+      }
+
+      // Try to load workout logs from Supabase first
+      try {
+        const { getWorkoutLogs, isSupabaseConfigured } = await import('../services/supabaseClient');
+        const userId = localStorage.getItem('fitbridge_token');
+        
+        if (isSupabaseConfigured() && userId) {
+          const dbLogs = await getWorkoutLogs(userId, 50);
+          if (dbLogs && dbLogs.length > 0) {
+            const mappedLogs: ManualLog[] = dbLogs.map((log: any) => ({
+              id: log.id || Date.now().toString(),
+              title: log.title,
+              duration: log.duration_minutes || 0,
+              calories: log.calories_burned || 0,
+              timestamp: new Date(log.workout_date || log.created_at).getTime(),
+            }));
+            setManualLogs(mappedLogs);
+            // Also cache in localStorage
+            localStorage.setItem('fitbridge_manual_workouts', JSON.stringify(mappedLogs));
+            return; // Supabase data loaded successfully
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load workouts from Supabase:', err);
+      }
+
+      // Fallback: load from localStorage
+      const savedLogs = localStorage.getItem('fitbridge_manual_workouts');
+      if (savedLogs) {
         setManualLogs(JSON.parse(savedLogs));
-    }
+      }
+    };
+
+    loadWorkoutData();
 
     // Click outside handler for dropdown
     const handleClickOutside = (event: MouseEvent) => {
@@ -244,7 +276,7 @@ export const WorkoutTab: React.FC = () => {
     }
   };
 
-  const handleSaveManualLog = () => {
+  const handleSaveManualLog = async () => {
       if (!manualForm.title || !manualForm.duration) return;
       
       const newLog: ManualLog = {
@@ -258,6 +290,26 @@ export const WorkoutTab: React.FC = () => {
       const updatedLogs = [newLog, ...manualLogs];
       setManualLogs(updatedLogs);
       localStorage.setItem('fitbridge_manual_workouts', JSON.stringify(updatedLogs));
+
+      // Also save to Supabase if configured
+      try {
+        const { logWorkout: logWorkoutToDb, isSupabaseConfigured } = await import('../services/supabaseClient');
+        const userId = localStorage.getItem('fitbridge_token');
+        
+        if (isSupabaseConfigured() && userId) {
+          await logWorkoutToDb({
+            user_id: userId,
+            workout_date: new Date().toISOString().split('T')[0],
+            title: manualForm.title,
+            workout_type: 'Manual',
+            duration_minutes: Number(manualForm.duration),
+            calories_burned: Number(manualForm.calories) || 0,
+            is_ai_generated: false,
+          });
+        }
+      } catch (err) {
+        console.error('Failed to log manual workout to Supabase:', err);
+      }
       
       setManualForm({ title: '', duration: '', calories: '' });
       setIsCustomActivity(false);

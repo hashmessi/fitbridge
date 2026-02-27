@@ -50,16 +50,56 @@ export const ActivityTab: React.FC = () => {
   }, [view]);
 
   const loadData = async () => {
-    // 1. Load Data from Storage
+    // 1. Load Weight Data from localStorage (weight tracking stays local for now)
     const savedWeights = localStorage.getItem('fitbridge_weight_logs');
     let loadedWeights: WeightLog[] = savedWeights ? JSON.parse(savedWeights) : [];
     loadedWeights = loadedWeights.sort((a, b) => a.timestamp - b.timestamp);
     setWeights(loadedWeights);
 
-    // TODO: Fetch from backend API once authentication is fully implemented
-    // For now, use localStorage since Demo Mode doesn't have auth tokens
-    const savedWorkouts = JSON.parse(localStorage.getItem('fitbridge_manual_workouts') || '[]');
-    const savedMeals = JSON.parse(localStorage.getItem('fitbridge_manual_meals') || '[]');
+    // 2. Try to load workout and meal data from Supabase first
+    let savedWorkouts: any[] = [];
+    let savedMeals: any[] = [];
+    
+    try {
+      const { getWorkoutLogs, getDietLogs, isSupabaseConfigured } = await import('../services/supabaseClient');
+      const userId = localStorage.getItem('fitbridge_token');
+      
+      if (isSupabaseConfigured() && userId) {
+        const dbWorkouts = await getWorkoutLogs(userId, 100);
+        if (dbWorkouts && dbWorkouts.length > 0) {
+          savedWorkouts = dbWorkouts.map((w: any) => ({
+            id: w.id,
+            title: w.title,
+            duration: w.duration_minutes || 0,
+            calories: w.calories_burned || 0,
+            timestamp: new Date(w.workout_date || w.created_at).getTime(),
+          }));
+        }
+        
+        const dbMeals = await getDietLogs(userId, undefined, 100);
+        if (dbMeals && dbMeals.length > 0) {
+          savedMeals = dbMeals.map((m: any) => ({
+            id: m.id,
+            name: m.meal_name,
+            calories: m.calories || 0,
+            protein: m.protein || 0,
+            carbs: m.carbs || 0,
+            fats: m.fats || 0,
+            timestamp: new Date(m.log_date || m.created_at).getTime(),
+          }));
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load activity data from Supabase:', err);
+    }
+    
+    // Fallback to localStorage if no Supabase data
+    if (savedWorkouts.length === 0) {
+      savedWorkouts = JSON.parse(localStorage.getItem('fitbridge_manual_workouts') || '[]');
+    }
+    if (savedMeals.length === 0) {
+      savedMeals = JSON.parse(localStorage.getItem('fitbridge_manual_meals') || '[]');
+    }
 
     // 2. Generate Daily Stats for Chart (Current Period)
     const stats: DailyStats[] = [];
