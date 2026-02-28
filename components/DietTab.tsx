@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Utensils, RefreshCw, ChefHat, Leaf, Info, Loader2, Plus, X, Calendar, Save, Check } from 'lucide-react';
+import { Utensils, RefreshCw, ChefHat, Loader2, Plus, X, Calendar, Save, Check } from 'lucide-react';
 import { generateDietPlan } from '../services/apiClient';
 import { DietPlan, Meal } from '../types';
 

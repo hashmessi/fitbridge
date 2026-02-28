@@ -164,7 +164,7 @@ export const OnboardingScreen: React.FC<OnboardingProps> = ({ userId, onComplete
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm text-zinc-400 mb-2 flex items-center gap-1">
+                  <label className="flex text-sm text-zinc-400 mb-2 items-center gap-1">
                     <Scale className="w-4 h-4" /> Weight (kg)
                   </label>
                   <input
@@ -177,7 +177,7 @@ export const OnboardingScreen: React.FC<OnboardingProps> = ({ userId, onComplete
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-zinc-400 mb-2 flex items-center gap-1">
+                  <label className="flex text-sm text-zinc-400 mb-2 items-center gap-1">
                     <Ruler className="w-4 h-4" /> Height (cm)
                   </label>
                   <input

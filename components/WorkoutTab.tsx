@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Dumbbell, Play, Clock, BarChart, ChevronRight, Loader2, Zap, Trophy, Flame, Activity, Youtube, HelpCircle, Check, AlertCircle, Save, Download, Plus, X, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
+import { Dumbbell, ChevronRight, Loader2, Zap, Trophy, Flame, Activity, Youtube, HelpCircle, Check, AlertCircle, Save, Download, Plus, X, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
 import { generateWorkoutPlan } from '../services/apiClient';
 import { WorkoutPlan } from '../types';
 
@@ -144,9 +144,9 @@ export const WorkoutTab: React.FC = () => {
     
     try {
       const response = await generateWorkoutPlan(fullDescription);
-      console.log('API Response:', response);
+      console.warn('API Response:', response);
       if (response.success && response.data) {
-        console.log('Workout Plan Data:', response.data);
+        console.warn('Workout Plan Data:', response.data);
         setWorkout(response.data);
       } else {
         console.error('Failed to generate workout:', response.error);
@@ -208,7 +208,7 @@ export const WorkoutTab: React.FC = () => {
       });
       
       if (response.success) {
-        console.log('Workout logged to backend successfully');
+        console.warn('Workout logged to backend successfully');
       }
     } catch (error) {
       console.error('Failed to log workout to backend:', error);
@@ -232,7 +232,7 @@ export const WorkoutTab: React.FC = () => {
           ) || [],
           is_ai_generated: true
         });
-        console.log('Workout logged to Supabase successfully');
+        console.warn('Workout logged to Supabase successfully');
       }
     } catch (error) {
       console.error('Failed to log workout to Supabase:', error);

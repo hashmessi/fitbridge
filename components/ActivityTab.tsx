@@ -104,8 +104,6 @@ export const ActivityTab: React.FC = () => {
     // 2. Generate Daily Stats for Chart (Current Period)
     const stats: DailyStats[] = [];
     const daysToLookBack = view === 'Week' ? 7 : 30;
-    
-    let totalMins = 0;
 
     for (let i = daysToLookBack - 1; i >= 0; i--) {
         const d = new Date();
@@ -134,8 +132,6 @@ export const ActivityTab: React.FC = () => {
         });
         const calsOut = daysWorkouts.reduce((acc: number, curr: any) => acc + (curr.calories || 0), 0);
         const duration = daysWorkouts.reduce((acc: number, curr: any) => acc + (curr.duration || 0), 0);
-        
-        totalMins += duration;
 
         stats.push({
             date: dateStr,
@@ -149,7 +145,6 @@ export const ActivityTab: React.FC = () => {
         });
     }
     setDailyStats(stats);
-    // setTotalWorkoutMinutes(totalMins);
 
     // 3. Calculate Streak
     let streakCount = 0;
@@ -157,7 +152,7 @@ export const ActivityTab: React.FC = () => {
     if (allWorkoutsSorted.length > 0) {
         const today = new Date();
         today.setHours(0,0,0,0);
-        let checkDate = new Date(today);
+        const checkDate = new Date(today);
         let found = true;
         
         while (found && streakCount < 365) {

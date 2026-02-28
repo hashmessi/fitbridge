@@ -23,7 +23,7 @@ interface AuthScreenProps {
   onSkip?: () => void;
 }
 
-export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess, onSkip }) => {
+export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess, onSkip: _onSkip }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);

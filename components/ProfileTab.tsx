@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { User, Settings, Bell, Shield, LogOut, ChevronRight, Trophy, Flame, Crown, Star, Zap, CheckCircle2, Dumbbell, Utensils } from 'lucide-react';
+import { Settings, Bell, Shield, LogOut, ChevronRight, Flame, Crown, Zap, CheckCircle2, Dumbbell, Utensils } from 'lucide-react';
 import { UserProfile } from '../types';
 
 interface ProfileProps {

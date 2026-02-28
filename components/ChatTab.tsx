@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, BrainCircuit, Loader2 } from 'lucide-react';
+import { Send, BrainCircuit, Loader2 } from 'lucide-react';
 import { ChatMessage } from '../types';
 import { sendChatMessage } from '../services/apiClient';
 
