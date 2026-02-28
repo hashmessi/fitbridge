@@ -141,7 +141,7 @@ export const OnboardingScreen: React.FC<OnboardingProps> = ({ userId, onComplete
           </div>
           <div className="text-center">
             <h2 className="text-xl font-bold">{steps[step].title}</h2>
-            <p className="text-zinc-500 text-sm">{steps[step].subtitle}</p>
+            <p className="text-zinc-400 text-sm mt-1">{steps[step].subtitle}</p>
           </div>
         </div>
 
@@ -158,7 +158,7 @@ export const OnboardingScreen: React.FC<OnboardingProps> = ({ userId, onComplete
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Enter your name"
-                  className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl py-4 px-4 text-white placeholder-zinc-600 focus:outline-none focus:border-primary/50"
+                  className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl py-4 px-4 text-white placeholder-zinc-500 focus:outline-none focus:border-primary/50"
                 />
               </div>
 
@@ -193,9 +193,9 @@ export const OnboardingScreen: React.FC<OnboardingProps> = ({ userId, onComplete
 
               {/* BMI Preview */}
               {weight > 0 && height > 0 && (
-                <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 text-center">
-                  <p className="text-zinc-500 text-sm">Your BMI</p>
-                  <p className="text-2xl font-bold text-primary">
+                <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-4 text-center mt-6">
+                  <p className="text-zinc-400 text-sm font-medium">Your BMI</p>
+                  <p className="text-2xl font-black text-primary mt-1">
                     {(weight / Math.pow(height / 100, 2)).toFixed(1)}
                   </p>
                 </div>
@@ -251,7 +251,7 @@ export const OnboardingScreen: React.FC<OnboardingProps> = ({ userId, onComplete
                       </div>
                     )}
                   </div>
-                  <p className="text-sm text-zinc-500 mt-1">{level.description}</p>
+                  <p className="text-sm text-zinc-400 mt-1.5">{level.description}</p>
                 </button>
               ))}
             </div>

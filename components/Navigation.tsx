@@ -27,12 +27,18 @@ export const Navigation: React.FC<NavigationProps> = ({ currentTab, onTabChange 
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className={`flex flex-col items-center justify-center space-y-1 transition-all duration-300 ${
+              aria-label={`Go to ${tab.label}`}
+              className={`flex flex-col items-center justify-center p-2 min-h-[48px] min-w-[48px] transition-all duration-300 relative ${
                 isActive ? 'text-primary scale-110' : 'text-zinc-500 hover:text-zinc-300'
               }`}
             >
-              <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
-              <span className="text-[10px] font-medium">{tab.label}</span>
+              <div className="relative flex flex-col items-center justify-center">
+                <Icon size={24} strokeWidth={isActive ? 2.5 : 2} className="mb-1" />
+                <span className="text-[10px] font-medium leading-none">{tab.label}</span>
+                {isActive && (
+                  <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
+                )}
+              </div>
             </button>
           );
         })}

@@ -114,12 +114,13 @@ export const ChatTab: React.FC = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="p-4 bg-zinc-900 border-t border-white/5 pb-24">
-        <div className="flex items-end gap-2 bg-black border border-zinc-800 rounded-2xl p-2 focus-within:border-zinc-600 transition-colors">
+      <div className="p-4 bg-zinc-900 border-t border-white/5 pb-safe pt-4">
+        <div className="flex items-end gap-2 bg-black border border-zinc-800 rounded-2xl p-2 focus-within:border-zinc-600 transition-colors mb-20">
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
+            aria-label="Ask the AI Coach a question"
             placeholder="Ask complex questions..."
             className="flex-1 bg-transparent text-white placeholder-zinc-600 focus:outline-none p-2 resize-none max-h-32 text-sm"
             rows={1}
@@ -128,7 +129,8 @@ export const ChatTab: React.FC = () => {
           <button
             onClick={handleSend}
             disabled={!input.trim() || isThinking}
-            className="p-3 bg-white rounded-xl text-black disabled:opacity-50 hover:bg-zinc-200 transition-colors"
+            aria-label="Send message"
+            className="p-3 min-h-[48px] min-w-[48px] flex items-center justify-center bg-white rounded-xl text-black disabled:opacity-50 hover:bg-zinc-200 transition-colors"
           >
             {isThinking ? <Loader2 size={18} className="animate-spin"/> : <Send size={18} />}
           </button>

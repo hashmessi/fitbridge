@@ -501,7 +501,7 @@ export const WorkoutTab: React.FC = () => {
                     </label>
                     <div className="relative">
                         {/* Goal Cards Container */}
-                        <div className="flex gap-3 overflow-hidden">
+                        <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 no-scrollbar">
                             {goals.map((goal) => {
                                 const Icon = goal.icon;
                                 const isSelected = selectedGoal === goal.id;
@@ -509,7 +509,8 @@ export const WorkoutTab: React.FC = () => {
                                     <button
                                         key={goal.id}
                                         onClick={() => setSelectedGoal(goal.id)}
-                                        className={`flex-1 min-w-0 p-4 rounded-2xl border transition-all duration-300 flex flex-col items-center gap-3 relative overflow-hidden group ${
+                                        aria-label={`Select goal: ${goal.id}`}
+                                        className={`flex-none w-[120px] p-4 rounded-2xl border transition-all duration-300 flex flex-col items-center gap-3 relative overflow-hidden group snap-center ${
                                             isSelected 
                                                 ? `bg-gradient-to-br ${goal.color} ${goal.border} text-white` 
                                                 : 'bg-zinc-800/50 border-zinc-700 text-zinc-400 hover:bg-zinc-800'
@@ -540,15 +541,31 @@ export const WorkoutTab: React.FC = () => {
                     </div>
                 </div>
 
-                {/* 2. Duration Slider */}
+                {/* 2. Duration Slider with Stepper */}
                 <div>
                     <div className="flex justify-between items-center mb-3">
                         <label className="text-zinc-500 text-xs font-bold uppercase tracking-wider">
                             Duration
                         </label>
-                        <span className="text-white font-mono text-sm bg-zinc-800 px-2 py-1 rounded-md">
-                            {duration} min
-                        </span>
+                        <div className="flex items-center gap-2 bg-zinc-800 rounded-lg p-1">
+                            <button 
+                                onClick={() => setDuration(Math.max(15, duration - 5))}
+                                aria-label="Decrease duration"
+                                className="w-6 h-6 rounded-md bg-zinc-700 flex items-center justify-center text-white hover:bg-zinc-600 transition-colors"
+                            >
+                                -
+                            </button>
+                            <span className="text-white font-mono text-sm px-2 w-[60px] text-center">
+                                {duration} min
+                            </span>
+                            <button 
+                                onClick={() => setDuration(Math.min(120, duration + 5))}
+                                aria-label="Increase duration"
+                                className="w-6 h-6 rounded-md bg-zinc-700 flex items-center justify-center text-white hover:bg-zinc-600 transition-colors"
+                            >
+                                +
+                            </button>
+                        </div>
                     </div>
                     <input 
                         type="range" 
@@ -557,9 +574,10 @@ export const WorkoutTab: React.FC = () => {
                         step="5"
                         value={duration}
                         onChange={(e) => setDuration(Number(e.target.value))}
-                        className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                        aria-label={`Duration: ${duration} minutes`}
+                        className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-blue-500 mt-2"
                     />
-                    <div className="flex justify-between text-[10px] text-zinc-600 mt-1 font-mono">
+                    <div className="flex justify-between text-[10px] text-zinc-600 mt-2 font-mono">
                         <span>15m</span>
                         <span>120m</span>
                     </div>
@@ -594,7 +612,8 @@ export const WorkoutTab: React.FC = () => {
                             <button
                                 key={area}
                                 onClick={() => setFocusArea(area)}
-                                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                                aria-label={`Focus area: ${area}`}
+                                className={`px-4 py-2 min-h-[36px] items-center justify-center rounded-full text-xs font-medium border transition-all ${
                                     focusArea === area
                                         ? 'bg-blue-500/20 border-blue-500 text-blue-200'
                                         : 'bg-zinc-800/50 border-transparent text-zinc-400 hover:border-zinc-600'
@@ -632,10 +651,25 @@ export const WorkoutTab: React.FC = () => {
                     <button
                         onClick={handleGenerate}
                         disabled={loading}
-                        className="w-full bg-white text-black font-bold py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-zinc-200 transition-colors disabled:opacity-50 shadow-xl shadow-white/5"
+                        aria-label="Generate Workout Plan"
+                        className="w-full min-h-[48px] bg-white text-black font-bold py-4 rounded-xl flex flex-col items-center justify-center gap-2 hover:bg-zinc-200 transition-colors disabled:opacity-50 shadow-xl shadow-white/5 relative overflow-hidden"
                     >
-                        {loading ? <Loader2 className="animate-spin" /> : <Dumbbell className="w-5 h-5" />}
-                        {loading ? 'Designing Plan...' : 'Generate Workout'}
+                        {loading ? (
+                            <div className="flex flex-col items-center gap-2 w-full px-6">
+                                <div className="flex items-center gap-2 text-sm">
+                                    <Loader2 className="animate-spin" size={16} />
+                                    <span>Analyzing Goals...</span>
+                                </div>
+                                <div className="w-full h-1 bg-zinc-200/30 rounded-full overflow-hidden">
+                                     <div className="h-full bg-blue-500 w-1/3 animate-[slide_1.5s_ease-in-out_infinite]"></div>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-2">
+                                <Dumbbell className="w-5 h-5" />
+                                <span>Generate Workout</span>
+                            </div>
+                        )}
                     </button>
 
                     {hasSavedWorkout && !loading && (

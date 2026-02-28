@@ -123,10 +123,10 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess, onSkip })
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-primary via-emerald-400 to-teal-500 shadow-2xl shadow-primary/30 mb-6">
             <Dumbbell className="w-10 h-10 text-black" />
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-zinc-300 bg-clip-text text-transparent">
             FitBridge
           </h1>
-          <p className="text-zinc-500 mt-2">Your AI-powered fitness companion</p>
+          <p className="text-zinc-400 mt-2">Your AI-powered fitness companion</p>
         </div>
 
         {/* Feature Pills */}
@@ -142,7 +142,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess, onSkip })
         </div>
 
         {/* Auth Card */}
-        <div className="bg-zinc-900/50 backdrop-blur-xl rounded-3xl border border-white/5 p-6 shadow-2xl">
+        <div className="bg-zinc-900/50 backdrop-blur-xl rounded-2xl border border-white/5 p-6 shadow-2xl">
           
           {/* Tab Switcher */}
           <div className="flex bg-zinc-800/50 rounded-xl p-1 mb-6">
@@ -250,7 +250,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess, onSkip })
               <div className="w-full border-t border-zinc-800" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-zinc-900/50 text-zinc-500">or continue with</span>
+              <span className="px-4 bg-zinc-900/50 text-zinc-400">or continue with</span>
             </div>
           </div>
 
@@ -276,11 +276,11 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess, onSkip })
         </div>
 
         {/* Terms */}
-        <p className="mt-6 text-center text-xs text-zinc-600">
+        <p className="mt-6 text-center text-xs text-zinc-400">
           By continuing, you agree to our{' '}
-          <a href="#" className="text-zinc-400 hover:text-white">Terms of Service</a>
+          <a href="#" className="text-zinc-300 hover:text-white underline decoration-zinc-600 underline-offset-2">Terms of Service</a>
           {' '}and{' '}
-          <a href="#" className="text-zinc-400 hover:text-white">Privacy Policy</a>
+          <a href="#" className="text-zinc-300 hover:text-white underline decoration-zinc-600 underline-offset-2">Privacy Policy</a>
         </p>
       </div>
     </div>

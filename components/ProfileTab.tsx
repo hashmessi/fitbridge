@@ -258,7 +258,11 @@ export const ProfileTab: React.FC<ProfileProps> = ({ user, onLogout }) => {
                     { icon: Bell, label: 'Notifications' },
                     { icon: Shield, label: 'Privacy & Data' },
                 ].map((item, idx) => (
-                    <button key={idx} className="w-full bg-zinc-900/30 border border-white/5 p-4 rounded-2xl flex items-center justify-between group hover:bg-zinc-800 transition-colors">
+                    <button 
+                        key={idx} 
+                        aria-label={`Open ${item.label} settings`}
+                        className="w-full bg-zinc-900/30 border border-white/5 p-4 min-h-[48px] rounded-2xl flex items-center justify-between group hover:bg-zinc-800 transition-colors"
+                    >
                         <div className="flex items-center gap-4">
                             <div className="p-2 bg-zinc-800 rounded-full group-hover:bg-zinc-700 text-zinc-400 transition-colors">
                                 <item.icon size={18} />
@@ -271,7 +275,8 @@ export const ProfileTab: React.FC<ProfileProps> = ({ user, onLogout }) => {
 
                 <button 
                     onClick={onLogout}
-                    className="w-full mt-4 bg-red-500/5 border border-red-500/10 p-4 rounded-2xl flex items-center justify-center gap-2 text-red-500 font-medium hover:bg-red-500/10 transition-colors"
+                    aria-label="Sign out of your account"
+                    className="w-full mt-4 bg-red-500/5 border border-red-500/10 p-4 min-h-[48px] rounded-2xl flex items-center justify-center gap-2 text-red-500 font-medium hover:bg-red-500/10 transition-colors"
                 >
                     <LogOut size={18} />
                     Sign Out

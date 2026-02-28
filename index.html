@@ -47,9 +47,41 @@
         -ms-overflow-style: none; /* IE and Edge */
         scrollbar-width: none; /* Firefox */
       }
+      
+      /* Design Tokens */
+      :root {
+        --color-bg: #0b0b0d;
+        --color-card: #0f1113;
+        --color-primary: #a9ff76;
+        --color-accent: #6be8ff;
+        --color-muted: #a3a3a6;
+        --radius-card: 12px;
+        --font-family: 'SF Pro Text', system-ui, -apple-system, 'Segoe UI', Roboto;
+      }
+
+      /* Safe Area Utilities */
+      .pb-safe {
+        padding-bottom: env(safe-area-inset-bottom, 20px);
+      }
+      .pt-safe {
+        padding-top: env(safe-area-inset-top, 0px);
+      }
+      
+      /* Animations */
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fade-in {
+        animation: fadeIn 0.4s ease-out forwards;
+      }
+
       body {
-        background-color: #000000;
+        background-color: var(--color-bg);
         color: #ffffff;
+        font-family: var(--font-family);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
       }
     </style>
     <script type="importmap">

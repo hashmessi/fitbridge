@@ -75,7 +75,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onNavigate }) => {
             const allWorkoutsSorted = savedWorkouts.sort((a: any, b: any) => b.timestamp - a.timestamp);
             const today = new Date();
             today.setHours(0,0,0,0);
-            let checkDate = new Date(today);
+            const checkDate = new Date(today);
             let found = true;
             
             while (found && streakCount < 365) {
@@ -106,7 +106,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onNavigate }) => {
         
         // Check today's workouts
         const today = new Date().toISOString().split('T')[0];
-        let todayWorkouts = workouts.filter(w => w.workout_date === today);
+        const todayWorkouts = workouts.filter(w => w.workout_date === today);
                 
         // If no Supabase workouts, check localStorage
         if (todayWorkouts.length === 0) {
@@ -281,7 +281,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onNavigate }) => {
       </div>
 
       {/* 1. Streak Management (Hero Section) */}
-      <div className="bg-gradient-to-br from-zinc-900 via-zinc-900 to-black border border-orange-500/20 rounded-3xl p-6 relative overflow-hidden group shadow-lg shadow-orange-900/5">
+      <div className="bg-gradient-to-br from-zinc-900 via-zinc-900 to-black border border-orange-500/20 rounded-2xl p-6 relative overflow-hidden group shadow-lg shadow-orange-900/5">
          {/* Background Effects */}
          <div className="absolute top-0 right-0 w-48 h-48 bg-orange-500/10 blur-[60px] rounded-full pointer-events-none group-hover:bg-orange-500/15 transition-colors duration-500"></div>
          
@@ -330,7 +330,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onNavigate }) => {
       </div>
 
       {/* 2. Highlight Card (Activity Ring) */}
-      <div className="bg-zinc-900/50 border border-white/5 rounded-[2.5rem] p-8 relative overflow-hidden flex flex-col items-center justify-center min-h-[280px]">
+      <div className="bg-zinc-900/50 border border-white/5 rounded-2xl p-8 relative overflow-hidden flex flex-col items-center justify-center min-h-[280px]">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-primary/5 blur-[80px] rounded-full pointer-events-none"></div>
         
         <div className="relative w-48 h-48 flex items-center justify-center">
@@ -361,14 +361,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onNavigate }) => {
          {/* Workout Tile */}
          <button 
            onClick={() => onNavigate(AppTab.WORKOUT)}
-           className="h-full bg-zinc-900/50 border border-white/5 rounded-3xl p-4 flex flex-col justify-between items-start hover:bg-zinc-800 hover:border-white/10 transition-all group relative overflow-hidden text-left"
+           aria-label={`Workout: ${todayWorkout || 'None Yet'}`}
+           className="h-full bg-zinc-900/50 border border-white/5 rounded-2xl p-4 flex flex-col justify-between items-start hover:bg-zinc-800 hover:border-white/10 transition-all group relative overflow-hidden text-left"
          >
-             <div className="p-3 bg-blue-500/10 rounded-2xl text-blue-400 group-hover:scale-110 transition-transform duration-300">
+             <div className="p-3 bg-blue-500/10 rounded-[12px] text-blue-400 group-hover:scale-110 transition-transform duration-300">
                 <Dumbbell size={20} />
              </div>
-             <div>
+             <div className="w-full">
                  <p className="text-[10px] text-zinc-500 font-bold uppercase mb-1">Workout</p>
-                 <p className="text-sm font-bold text-white leading-tight">{todayWorkout || 'None Yet'}</p>
+                 <p className="text-sm font-bold text-white leading-tight line-clamp-2" title={todayWorkout || 'None Yet'}>{todayWorkout || 'None Yet'}</p>
              </div>
              <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <Play size={14} className="fill-white text-white" />
@@ -378,9 +379,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onNavigate }) => {
          {/* Diet Tile */}
          <button 
            onClick={() => onNavigate(AppTab.DIET)}
-           className="h-full bg-zinc-900/50 border border-white/5 rounded-3xl p-4 flex flex-col justify-between items-start hover:bg-zinc-800 hover:border-white/10 transition-all"
+           aria-label={`Calories: ${todayCalories.toLocaleString()}`}
+           className="h-full bg-zinc-900/50 border border-white/5 rounded-2xl p-4 flex flex-col justify-between items-start hover:bg-zinc-800 hover:border-white/10 transition-all"
          >
-             <div className="p-3 bg-green-500/10 rounded-2xl text-green-400">
+             <div className="p-3 bg-green-500/10 rounded-[12px] text-green-400">
                 <Utensils size={20} />
              </div>
              <div>
@@ -392,9 +394,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onNavigate }) => {
          {/* Activity Tile */}
          <button 
            onClick={() => onNavigate(AppTab.ACTIVITY)}
-           className="h-full bg-zinc-900/50 border border-white/5 rounded-3xl p-4 flex flex-col justify-between items-start hover:bg-zinc-800 hover:border-white/10 transition-all"
+           aria-label={`Steps: ${steps.toLocaleString()}`}
+           className="h-full bg-zinc-900/50 border border-white/5 rounded-2xl p-4 flex flex-col justify-between items-start hover:bg-zinc-800 hover:border-white/10 transition-all"
          >
-             <div className="p-3 bg-purple-500/10 rounded-2xl text-purple-400">
+             <div className="p-3 bg-purple-500/10 rounded-[12px] text-purple-400">
                 <Footprints size={20} />
              </div>
              <div>
@@ -408,7 +411,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onNavigate }) => {
       <div className="flex gap-3">
           <button 
             onClick={() => onNavigate(AppTab.CHAT)}
-            className="flex-1 bg-zinc-900/50 border border-white/5 py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-zinc-800 transition-colors text-xs font-bold text-zinc-300 group"
+            aria-label="Ask AI Coach"
+            className="flex-1 bg-zinc-900/50 border border-white/5 py-3 min-h-[48px] rounded-2xl flex items-center justify-center gap-2 hover:bg-zinc-800 transition-colors text-xs font-bold text-zinc-300 group"
           >
               <MessageSquare size={16} className="text-pink-500 group-hover:scale-110 transition-transform" />
               AI Coach
@@ -416,7 +420,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onNavigate }) => {
           
           <button 
             onClick={() => onNavigate(AppTab.WORKOUT)}
-            className="flex-1 bg-zinc-900/50 border border-white/5 py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-zinc-800 transition-colors text-xs font-bold text-zinc-300 group"
+            aria-label="Generate Workout"
+            className="flex-1 bg-zinc-900/50 border border-white/5 py-3 min-h-[48px] rounded-2xl flex items-center justify-center gap-2 hover:bg-zinc-800 transition-colors text-xs font-bold text-zinc-300 group"
           >
               <Zap size={16} className="text-blue-500 group-hover:scale-110 transition-transform" />
               Gen Workout
@@ -424,7 +429,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onNavigate }) => {
           
           <button 
             onClick={() => onNavigate(AppTab.DIET)}
-            className="flex-1 bg-zinc-900/50 border border-white/5 py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-zinc-800 transition-colors text-xs font-bold text-zinc-300 group"
+            aria-label="Add Meal"
+            className="flex-1 bg-zinc-900/50 border border-white/5 py-3 min-h-[48px] rounded-2xl flex items-center justify-center gap-2 hover:bg-zinc-800 transition-colors text-xs font-bold text-zinc-300 group"
           >
               <Plus size={16} className="text-green-500 group-hover:scale-110 transition-transform" />
               Add Meal

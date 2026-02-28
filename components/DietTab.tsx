@@ -159,7 +159,7 @@ export const DietTab: React.FC = () => {
     };
 
     const MealCard = ({ title, meal, colorClass }: { title: string, meal: Meal, colorClass: string }) => (
-        <div className={`p-5 rounded-3xl bg-zinc-900/60 border border-white/5 relative overflow-hidden`}>
+        <div className={`p-5 rounded-2xl bg-zinc-900/60 border border-white/5 relative overflow-hidden`}>
              <div className={`absolute top-0 left-0 w-1 h-full ${colorClass}`}></div>
              <div className="flex justify-between items-start mb-2">
                  <h4 className="text-sm uppercase tracking-wider text-zinc-500 font-bold">{title}</h4>
@@ -280,7 +280,8 @@ export const DietTab: React.FC = () => {
         </h1>
         <button 
             onClick={() => setShowManualForm(true)}
-            className="text-xs bg-zinc-900 border border-white/10 px-3 py-1.5 rounded-full text-zinc-300 hover:text-white hover:border-white/30 transition-all flex items-center gap-1.5"
+            aria-label="Add Manual Meal"
+            className="text-xs bg-zinc-900 border border-white/10 px-4 min-h-[36px] items-center justify-center rounded-full text-zinc-300 hover:text-white hover:border-white/30 transition-all flex gap-1.5"
         >
             <Plus size={14} />
             Add Manual
@@ -303,10 +304,25 @@ export const DietTab: React.FC = () => {
                 <button
                     onClick={handleGenerate}
                     disabled={loading || !preferences}
-                    className="w-full bg-white text-black font-bold py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-zinc-200 transition-colors disabled:opacity-50"
+                    aria-label="Generate Diet Plan"
+                    className="w-full min-h-[48px] bg-white text-black font-bold py-4 rounded-xl flex flex-col items-center justify-center gap-2 hover:bg-zinc-200 transition-colors disabled:opacity-50 relative overflow-hidden"
                 >
-                    {loading ? <Loader2 className="animate-spin" /> : <ChefHat className="w-5 h-5" />}
-                    {loading ? 'Cooking Plan...' : 'Generate Diet'}
+                    {loading ? (
+                        <div className="flex flex-col items-center gap-2 w-full px-6">
+                            <div className="flex items-center gap-2 text-sm">
+                                <Loader2 className="animate-spin" size={16} />
+                                <span>Designing Nutrition Plan...</span>
+                            </div>
+                            <div className="w-full h-1 bg-zinc-200/30 rounded-full overflow-hidden">
+                                 <div className="h-full bg-green-500 w-1/3 animate-[slide_1.5s_ease-in-out_infinite]"></div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="flex items-center gap-2">
+                            <ChefHat className="w-5 h-5" />
+                            <span>Generate Diet</span>
+                        </div>
+                    )}
                 </button>
             </div>
             

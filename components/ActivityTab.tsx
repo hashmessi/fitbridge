@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
-import { Flame, Utensils, Scale, Plus, TrendingUp, TrendingDown, Target, Calendar, X, Trash2, Timer, Zap, Activity, ChevronRight, BarChart2, History } from 'lucide-react';
+import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { Flame, Utensils, Scale, Plus, TrendingUp, TrendingDown, Target, History, Activity, Trash2, Timer } from 'lucide-react';
 
 interface WeightLog {
   id: string;
@@ -42,7 +42,7 @@ export const ActivityTab: React.FC = () => {
   const [newWeight, setNewWeight] = useState('');
 
   // Stats
-  const [totalWorkoutMinutes, setTotalWorkoutMinutes] = useState(0);
+  // const [totalWorkoutMinutes, setTotalWorkoutMinutes] = useState(0); // Removing unused state
   const [currentStreak, setCurrentStreak] = useState(0);
 
   useEffect(() => {
@@ -149,7 +149,7 @@ export const ActivityTab: React.FC = () => {
         });
     }
     setDailyStats(stats);
-    setTotalWorkoutMinutes(totalMins);
+    // setTotalWorkoutMinutes(totalMins);
 
     // 3. Calculate Streak
     let streakCount = 0;
@@ -280,7 +280,6 @@ export const ActivityTab: React.FC = () => {
 
   // UI Calculations
   const currentWeight = weights.length > 0 ? weights[weights.length - 1].weight : 0;
-  const startWeight = weights.length > 0 ? weights[0].weight : currentWeight;
   const previousWeight = weights.length > 1 ? weights[weights.length - 2].weight : currentWeight;
   const weightTrend = currentWeight - previousWeight;
   
@@ -307,7 +306,7 @@ export const ActivityTab: React.FC = () => {
                     PROGRESS
                 </h1>
                 <p className="text-zinc-400 text-xs font-bold uppercase tracking-wider mt-1 flex items-center gap-2">
-                    <BarChart2 size={12} className="text-blue-500" />
+                    <Activity size={12} className="text-blue-500" />
                     {view}ly Performance
                 </p>
             </div>
@@ -320,7 +319,7 @@ export const ActivityTab: React.FC = () => {
                         className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase transition-all ${
                             view === v 
                             ? 'bg-white text-black shadow-lg shadow-white/10' 
-                            : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800'
+                            : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'
                         }`}
                     >
                         {v}
@@ -331,46 +330,62 @@ export const ActivityTab: React.FC = () => {
 
        {/* 1. Trend Impact Cards */}
        <div className="grid grid-cols-2 gap-4 mb-6">
-           <div className="bg-zinc-900/80 border border-white/5 rounded-[2rem] p-5 relative overflow-hidden group">
+           <div className="bg-zinc-900/80 border border-white/5 rounded-2xl p-5 relative overflow-hidden group">
                <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/10 blur-[40px] group-hover:bg-blue-500/20 transition-colors"></div>
                <div className="relative z-10">
                    <div className="flex items-center gap-2 mb-2 text-blue-400">
                        <DumbbellIcon size={16} />
                        <span className="text-[10px] font-bold uppercase tracking-wider">Workouts</span>
                    </div>
-                   <div className="flex items-baseline gap-2">
-                       <span className="text-3xl font-black text-white">{currentPeriod.workoutCount}</span>
-                       <span className="text-xs text-zinc-500 font-medium">sess.</span>
-                   </div>
-                   <div className={`mt-2 text-xs font-bold flex items-center gap-1 ${workoutTrend >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                       {workoutTrend >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-                       {Math.abs(workoutTrend)} vs last {view.toLowerCase()}
-                   </div>
+                   {currentPeriod.workoutCount > 0 ? (
+                       <>
+                           <div className="flex items-baseline gap-2">
+                               <span className="text-3xl font-black text-white">{currentPeriod.workoutCount}</span>
+                               <span className="text-xs text-zinc-500 font-medium">sess.</span>
+                           </div>
+                           <div className={`mt-2 text-xs font-bold flex items-center gap-1 ${workoutTrend >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                               {workoutTrend >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                               {Math.abs(workoutTrend)} vs last {view.toLowerCase()}
+                           </div>
+                       </>
+                   ) : (
+                       <div className="mt-4 text-xs text-zinc-500 font-medium italic border-t border-dashed border-white/10 pt-3">
+                           Log your first workout to start tracking!
+                       </div>
+                   )}
                </div>
            </div>
 
-           <div className="bg-zinc-900/80 border border-white/5 rounded-[2rem] p-5 relative overflow-hidden group">
+           <div className="bg-zinc-900/80 border border-white/5 rounded-2xl p-5 relative overflow-hidden group">
                <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/10 blur-[40px] group-hover:bg-purple-500/20 transition-colors"></div>
                <div className="relative z-10">
                    <div className="flex items-center gap-2 mb-2 text-purple-400">
                        <Timer size={16} />
                        <span className="text-[10px] font-bold uppercase tracking-wider">Duration</span>
                    </div>
-                   <div className="flex items-baseline gap-2">
-                       <span className="text-3xl font-black text-white">{Math.floor(currentPeriod.totalDuration / 60)}</span>
-                       <span className="text-xs text-zinc-500 font-medium">hours</span>
-                   </div>
-                   <div className={`mt-2 text-xs font-bold flex items-center gap-1 ${durationTrend >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                       {durationTrend >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-                       {Math.abs(Math.floor(durationTrend / 60))}h vs last {view.toLowerCase()}
-                   </div>
+                   {currentPeriod.totalDuration > 0 ? (
+                       <>
+                           <div className="flex items-baseline gap-2">
+                               <span className="text-3xl font-black text-white">{Math.floor(currentPeriod.totalDuration / 60)}</span>
+                               <span className="text-xs text-zinc-500 font-medium">hours</span>
+                           </div>
+                           <div className={`mt-2 text-xs font-bold flex items-center gap-1 ${durationTrend >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                               {durationTrend >= 0 ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+                               {Math.abs(Math.floor(durationTrend / 60))}h vs last {view.toLowerCase()}
+                           </div>
+                       </>
+                   ) : (
+                       <div className="mt-4 text-xs text-zinc-500 font-medium italic border-t border-dashed border-white/10 pt-3">
+                           Track time spent sweating it out
+                       </div>
+                   )}
                </div>
            </div>
        </div>
 
        {/* 2. Consistency & Load */}
        <div className="grid grid-cols-1 gap-6 mb-6">
-           <div className="bg-zinc-900/80 border border-white/5 rounded-[2.5rem] p-6 backdrop-blur-md">
+           <div className="bg-zinc-900/80 border border-white/5 rounded-2xl p-6 backdrop-blur-md">
                 <div className="flex justify-between items-center mb-6">
                     <h3 className="font-bold text-white text-lg flex items-center gap-2">
                         <Activity className="w-5 h-5 text-green-500" />
@@ -382,95 +397,160 @@ export const ActivityTab: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Visual Strip */}
-                <div className="flex justify-between items-end h-36 px-1">
-                   {dailyStats.map((day, idx) => (
-                       <div key={idx} className="flex flex-col items-center gap-2 w-full group">
-                           {/* Bar representing duration */}
-                           <div className="relative w-full flex justify-center h-full items-end">
-                                <div 
-                                    className={`w-3 rounded-full transition-all duration-500 group-hover:scale-110 ${
-                                        day.hasWorkout 
-                                        ? 'bg-gradient-to-t from-green-600 to-emerald-400 shadow-[0_0_15px_rgba(34,197,94,0.4)]' 
-                                        : 'bg-zinc-800'
-                                    }`}
-                                    style={{ height: day.hasWorkout ? `${Math.min(100, (day.workoutDuration / 60) * 50)}%` : '4px' }}
-                                ></div>
-                           </div>
-                           
-                           {/* Day Label */}
-                           <div className="flex flex-col items-center gap-0.5">
-                               {view === 'Week' && (
-                                   <span className={`text-[10px] font-bold uppercase ${day.hasWorkout ? 'text-white' : 'text-zinc-600'}`}>
-                                       {day.weekday}
-                                   </span>
-                               )}
-                               <span className={`text-[10px] font-bold ${day.hasWorkout ? 'text-white' : 'text-zinc-600'}`}>
-                                   {day.dayNumber}
-                               </span>
-                           </div>
+                {/* Visual Strip / Heatmap */}
+                {workoutCount > 0 ? (
+                    view === 'Week' ? (
+                        <div className="flex justify-between items-end h-36 px-1">
+                           {dailyStats.map((day, idx) => (
+                               <div key={idx} className="flex flex-col items-center gap-2 w-full group">
+                                   {/* Bar representing duration */}
+                                   <div className="relative w-full flex justify-center h-full items-end">
+                                        <div 
+                                            className={`w-4 rounded-full transition-all duration-500 group-hover:scale-110 ${
+                                                day.hasWorkout 
+                                                ? 'bg-gradient-to-t from-green-600 to-emerald-400 shadow-[0_0_15px_rgba(34,197,94,0.4)]' 
+                                                : 'bg-zinc-800'
+                                            }`}
+                                            style={{ height: day.hasWorkout ? `${Math.min(100, (day.workoutDuration / 60) * 50)}%` : '4px' }}
+                                        ></div>
+                                   </div>
+                                   
+                                   {/* Day Label */}
+                                   <div className="flex flex-col items-center gap-0.5">
+                                       <span className={`text-[10px] font-bold uppercase ${day.hasWorkout ? 'text-white' : 'text-zinc-600'}`}>
+                                           {day.weekday}
+                                       </span>
+                                       <span className={`text-[10px] font-bold ${day.hasWorkout ? 'text-white' : 'text-zinc-600'}`}>
+                                           {day.dayNumber}
+                                       </span>
+                                   </div>
+                               </div>
+                           ))}
                        </div>
-                   ))}
-               </div>
+                    ) : (
+                        <div className="flex flex-col items-center justify-center h-36">
+                            <div className="grid grid-flow-col grid-rows-7 gap-1.5 opacity-90 hover:opacity-100 transition-opacity">
+                                {dailyStats.map((day, idx) => {
+                                    // Heatmap colors based on duration intensity
+                                    let intensityClass = 'bg-zinc-800/80';
+                                    if (day.hasWorkout) {
+                                        if (day.workoutDuration < 30) intensityClass = 'bg-emerald-900/80 shadow-[0_0_8px_rgba(6,78,59,0.3)]';
+                                        else if (day.workoutDuration < 60) intensityClass = 'bg-emerald-600/90 shadow-[0_0_10px_rgba(5,150,105,0.4)]';
+                                        else intensityClass = 'bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.5)]';
+                                    }
+
+                                    return (
+                                        <div 
+                                            key={idx} 
+                                            className={`w-3 h-3 rounded-sm transition-all duration-300 hover:scale-125 hover:z-10 ${intensityClass}`}
+                                            title={`${day.date}: ${day.hasWorkout ? day.workoutDuration + ' mins' : 'Rest day'}`}
+                                        />
+                                    );
+                                })}
+                            </div>
+                            <div className="flex justify-between w-full max-w-[200px] mt-4 text-[10px] font-bold text-zinc-600 uppercase tracking-widest">
+                                <span>Less</span>
+                                <div className="flex gap-1">
+                                    <div className="w-3 h-3 rounded-sm bg-zinc-800/80"></div>
+                                    <div className="w-3 h-3 rounded-sm bg-emerald-900/80"></div>
+                                    <div className="w-3 h-3 rounded-sm bg-emerald-600/90"></div>
+                                    <div className="w-3 h-3 rounded-sm bg-emerald-400"></div>
+                                </div>
+                                <span>More</span>
+                            </div>
+                        </div>
+                    )
+                ) : (
+                   <div className="h-36 flex flex-col items-center justify-center border-2 border-dashed border-white/5 rounded-2xl">
+                       <Flame size={24} className="text-zinc-700 mb-2" />
+                       <p className="text-sm font-bold text-zinc-500">Complete workouts to build your streak</p>
+                   </div>
+                )}
            </div>
        </div>
 
        {/* 3. Energy Balance Chart */}
-       <div className="bg-zinc-900/50 border border-white/5 rounded-[2.5rem] p-6 mb-6">
-           <div className="flex justify-between items-center mb-6">
-               <h3 className="font-bold text-white text-sm flex items-center gap-2">
-                   <Target className="w-4 h-4 text-orange-500" />
-                   Energy Balance
-               </h3>
-               <div className="text-xs font-mono bg-zinc-800 px-2 py-1 rounded-md text-zinc-400">
-                   Net: <span className={netCalories > 0 ? "text-green-400 font-bold" : "text-orange-400 font-bold"}>{netCalories > 0 ? '+' : ''}{netCalories}</span>
+       <div 
+         className="bg-zinc-900/50 border border-white/5 rounded-2xl p-6 mb-6"
+         role="img"
+         aria-label="Bar chart showing energy balance: calories in versus calories out for the current period"
+       >
+           <div className="flex flex-col mb-6 gap-3">
+               <div className="flex justify-between items-center">
+                   <h3 className="font-bold text-white text-sm flex items-center gap-2">
+                       <Target className="w-4 h-4 text-orange-500" />
+                       Energy Balance
+                   </h3>
+                   <div className="text-xs font-mono bg-zinc-800 px-2 py-1 rounded-md text-zinc-400">
+                       Net: <span className={netCalories > 0 ? "text-green-400 font-bold" : "text-orange-400 font-bold"}>{netCalories > 0 ? '+' : ''}{netCalories}</span>
+                   </div>
+               </div>
+               
+               {/* Legend */}
+               <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-wider">
+                   <div className="flex items-center gap-1.5 text-zinc-400">
+                       <span className="w-2 h-2 rounded-full bg-green-400"></span>
+                       Calories In
+                   </div>
+                   <div className="flex items-center gap-1.5 text-zinc-400">
+                       <span className="w-2 h-2 rounded-full bg-orange-400"></span>
+                       Calories Out
+                   </div>
                </div>
            </div>
            
-           <div className="h-48 w-full">
-               <ResponsiveContainer width="100%" height="100%">
-                   <BarChart data={dailyStats} barGap={4}>
-                       <XAxis 
-                            dataKey="dayName" 
-                            axisLine={false} 
-                            tickLine={false} 
-                            tick={{fontSize: 10, fill: '#52525b', fontWeight: 'bold'}} 
-                            dy={10}
-                        />
-                       <Tooltip 
-                           cursor={{fill: 'rgba(255,255,255,0.03)'}}
-                           content={({ active, payload, label }) => {
-                               if (active && payload && payload.length) {
-                               return (
-                                   <div className="bg-zinc-950 border border-zinc-800 p-3 rounded-xl shadow-2xl">
-                                       <p className="text-xs text-zinc-400 mb-2 font-bold uppercase">{label}</p>
-                                       <div className="space-y-1">
-                                           <div className="flex items-center gap-2 text-xs text-green-400 font-bold">
-                                               <Utensils size={10} />
-                                               {payload[0].value} In
-                                           </div>
-                                           <div className="flex items-center gap-2 text-xs text-orange-400 font-bold">
-                                               <Flame size={10} />
-                                               {payload[1].value} Out
+           {dailyStats.some(d => d.caloriesIn > 0 || d.caloriesOut > 0) ? (
+               <div className="h-52 w-full">
+                   <ResponsiveContainer width="100%" height="100%">
+                       <BarChart data={dailyStats} barGap={4} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
+                           <XAxis 
+                                dataKey="dayName" 
+                                axisLine={false} 
+                                tickLine={false} 
+                                tick={{fontSize: 10, fill: '#a1a1aa', fontWeight: 'bold'}} 
+                                dy={10}
+                                interval={view === 'Month' ? 4 : 'preserveStartEnd'}
+                            />
+                           <Tooltip 
+                               cursor={{fill: 'rgba(255,255,255,0.03)'}}
+                               content={({ active, payload, label }) => {
+                                   if (active && payload && payload.length) {
+                                   return (
+                                       <div className="bg-zinc-950 border border-zinc-800 p-3 rounded-xl shadow-2xl">
+                                           <p className="text-xs text-zinc-300 mb-2 font-bold uppercase">{label}</p>
+                                           <div className="space-y-1">
+                                               <div className="flex items-center gap-2 text-xs text-green-400 font-bold">
+                                                   <Utensils size={10} />
+                                                   {payload[0].value} In
+                                               </div>
+                                               <div className="flex items-center gap-2 text-xs text-orange-400 font-bold">
+                                                   <Flame size={10} />
+                                                   {payload[1].value} Out
+                                               </div>
                                            </div>
                                        </div>
-                                   </div>
-                               );
-                               }
-                               return null;
-                           }}
-                       />
-                       <Bar dataKey="caloriesIn" fill="#4ade80" radius={[4, 4, 4, 4]} barSize={8} />
-                       <Bar dataKey="caloriesOut" fill="#fb923c" radius={[4, 4, 4, 4]} barSize={8} />
-                   </BarChart>
-               </ResponsiveContainer>
-           </div>
+                                   );
+                                   }
+                                   return null;
+                               }}
+                           />
+                           <Bar dataKey="caloriesIn" fill="#4ade80" radius={[4, 4, 4, 4]} barSize={8} />
+                           <Bar dataKey="caloriesOut" fill="#fb923c" radius={[4, 4, 4, 4]} barSize={8} />
+                       </BarChart>
+                   </ResponsiveContainer>
+               </div>
+           ) : (
+               <div className="h-48 w-full flex flex-col items-center justify-center border-2 border-dashed border-white/5 rounded-2xl">
+                    <Utensils size={24} className="text-zinc-700 mb-2" />
+                    <p className="text-sm font-bold text-zinc-500">Log meals and workouts to see energy balance</p>
+               </div>
+           )}
        </div>
 
        {/* 4. Performance Archive */}
        <div className="mt-8">
            <div className="flex items-center justify-between mb-6 px-2">
-                <h3 className="font-black text-zinc-600 text-xs uppercase tracking-widest flex items-center gap-2">
+                <h3 className="font-black text-zinc-500 text-xs uppercase tracking-widest flex items-center gap-2">
                     <History size={14} />
                     {view}ly Archive
                 </h3>
@@ -478,24 +558,31 @@ export const ActivityTab: React.FC = () => {
            
            <div className="space-y-3">
                {periodHistory.map((period, idx) => (
-                   <div key={period.id} className={`bg-zinc-900 border border-zinc-800 p-5 rounded-2xl flex items-center justify-between group hover:border-zinc-600 transition-colors ${idx === 0 ? 'bg-zinc-800/50 border-white/10' : ''}`}>
+                   <div key={period.id} className={`bg-zinc-900 border border-zinc-800 p-5 rounded-2xl flex items-center justify-between group hover:border-zinc-700 transition-colors ${idx === 0 ? 'bg-zinc-800/50 border-white/10' : ''}`}>
                        <div className="flex items-center gap-4">
-                           <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-xs shadow-inner ${idx === 0 ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-zinc-950 text-zinc-500 border border-zinc-800'}`}>
+                           <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-xs shadow-inner transition-colors ${idx === 0 ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-zinc-950 text-zinc-400 border border-zinc-800 group-hover:text-white group-hover:border-zinc-600'}`}>
                                <div className="text-center leading-tight">
                                    <Activity size={20} />
                                </div>
                            </div>
                            <div>
                                <span className="text-sm font-black text-white block">{period.label}</span>
-                               <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wide">{period.subLabel}</span>
+                               <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wide">{period.subLabel}</span>
                            </div>
                        </div>
                        
                        <div className="text-right flex flex-col items-end">
                            <span className="text-sm font-bold text-white flex items-center gap-2">
+                               {period.workoutCount > 0 && idx !== 0 && (
+                                   <div className="flex gap-0.5 mr-1" title="Volume intensity">
+                                       <div className={`w-1 h-3 rounded-sm ${period.workoutCount > 2 ? 'bg-green-500' : 'bg-zinc-700'}`}></div>
+                                       <div className={`w-1 h-3 rounded-sm ${period.workoutCount > 4 ? 'bg-green-500' : 'bg-zinc-700'}`}></div>
+                                       <div className={`w-1 h-3 rounded-sm ${period.workoutCount > 6 ? 'bg-green-500' : 'bg-zinc-700'}`}></div>
+                                   </div>
+                               )}
                                {period.workoutCount} Workouts
                            </span>
-                           <div className="flex items-center gap-2 text-xs text-zinc-500 mt-0.5">
+                           <div className="flex items-center gap-2 text-xs text-zinc-400 mt-0.5">
                                <span>{period.caloriesBurned} kcal</span>
                                <span>•</span>
                                <span>{period.avgWeight > 0 ? `${period.avgWeight.toFixed(1)}kg` : '-'}</span>
@@ -504,23 +591,32 @@ export const ActivityTab: React.FC = () => {
                    </div>
                ))}
                {periodHistory.length === 0 && (
-                   <div className="text-center py-12 text-zinc-600 text-sm font-medium">
-                       No history data available yet.
+                   <div className="flex flex-col items-center justify-center py-12 px-4 border-2 border-dashed border-white/5 rounded-2xl bg-zinc-900/30">
+                       <div className="w-12 h-12 bg-zinc-800 rounded-2xl flex items-center justify-center mb-4 text-zinc-600">
+                           <History size={24} />
+                       </div>
+                       <p className="text-sm font-bold text-zinc-400 text-center">No history data available yet</p>
+                       <p className="text-xs text-zinc-500 mt-1 text-center">Complete your first week to see past performance here.</p>
                    </div>
                )}
            </div>
        </div>
        
        {/* 5. Weight Intelligence Card */}
-       <div className="mt-8 bg-zinc-950 border border-zinc-900 rounded-[2.5rem] p-6 relative overflow-hidden group">
+       <div 
+         className="mt-8 bg-zinc-950 border border-zinc-900 rounded-2xl p-6 relative overflow-hidden group"
+         role="img"
+         aria-label="Area chart showing weight tracking history over time"
+       >
            <div className="flex justify-between items-center mb-6 relative z-10">
                <div className="flex items-center gap-2">
                    <Scale className="w-4 h-4 text-blue-500" />
-                   <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Weight Tracker</span>
+                   <span className="text-xs font-bold text-zinc-300 uppercase tracking-widest">Weight Tracker</span>
                </div>
                <button 
                 onClick={() => setShowWeightModal(true)}
-                className="bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 p-2 rounded-xl transition-all"
+                aria-label="Add new weight entry"
+                className="bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 p-2 rounded-xl min-h-[48px] min-w-[48px] flex items-center justify-center transition-all"
                >
                    <Plus size={20} />
                </button>
@@ -528,22 +624,57 @@ export const ActivityTab: React.FC = () => {
 
            <div className="flex items-baseline gap-3 mb-4">
                <span className="text-4xl font-black text-white tracking-tighter">{currentWeight > 0 ? currentWeight : '--'}</span>
-               <span className="text-sm font-medium text-zinc-500">kg</span>
-               <span className={`text-xs font-bold ml-auto ${weightTrend < 0 ? 'text-green-500' : 'text-zinc-600'}`}>
+               <span className="text-sm font-medium text-zinc-400">kg</span>
+               <span className={`text-xs font-bold ml-auto ${weightTrend < 0 ? 'text-green-500' : 'text-zinc-500'}`}>
                     {weightTrend !== 0 ? (weightTrend > 0 ? '+' : '') + weightTrend.toFixed(1) : '-'} last entry
                </span>
            </div>
            
-           <div className="h-32 w-full -mx-2">
+           <div className="h-40 w-full -mx-4 pb-2">
                {weights.length > 0 ? (
                    <ResponsiveContainer width="100%" height="100%">
-                       <AreaChart data={weights}>
+                       <AreaChart data={weights} margin={{ top: 10, right: 16, left: 0, bottom: 0 }}>
                            <defs>
                                <linearGradient id="colorWeight" x1="0" y1="0" x2="0" y2="1">
-                                   <stop offset="5%" stopColor="#2563eb" stopOpacity={0.2}/>
+                                   <stop offset="5%" stopColor="#2563eb" stopOpacity={0.3}/>
                                    <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
                                </linearGradient>
                            </defs>
+                           <XAxis 
+                               dataKey="date" 
+                               axisLine={false} 
+                               tickLine={false} 
+                               tick={{fontSize: 10, fill: '#a1a1aa', fontWeight: 'bold'}} 
+                               dy={10}
+                               tickFormatter={(val) => {
+                                   const parts = val.split('/');
+                                   if (parts.length === 3) {
+                                       const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                                       return `${months[parseInt(parts[0])-1]} ${parts[1]}`;
+                                   }
+                                   return val;
+                               }}
+                               minTickGap={30}
+                           />
+                           <Tooltip 
+                               cursor={{stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1, strokeDasharray: '4 4'}}
+                               content={({ active, payload }) => {
+                                   if (active && payload && payload.length) {
+                                       const log = payload[0].payload as WeightLog;
+                                       return (
+                                           <div className="bg-zinc-950 border border-zinc-800 p-3 rounded-xl shadow-xl">
+                                               <p className="text-xs text-zinc-400 font-bold mb-1">
+                                                   {new Date(log.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                               </p>
+                                               <p className="text-lg font-black text-white">
+                                                   {log.weight} <span className="text-xs text-blue-400">kg</span>
+                                               </p>
+                                           </div>
+                                       );
+                                   }
+                                   return null;
+                               }}
+                           />
                            <Area 
                                type="monotone" 
                                dataKey="weight" 
@@ -555,13 +686,15 @@ export const ActivityTab: React.FC = () => {
                        </AreaChart>
                    </ResponsiveContainer>
                ) : (
-                   <div className="h-full flex items-center justify-center text-xs text-zinc-700">No data</div>
+                   <div className="h-full mt-4 flex flex-col items-center justify-center border-2 border-dashed border-white/5 rounded-2xl mx-2">
+                        <Scale size={24} className="text-zinc-700 mb-2" />
+                        <p className="text-sm font-bold text-zinc-500">Track your weight to see trends</p>
+                   </div>
                )}
            </div>
 
-           {/* Detailed Weight History List */}
-           <div className="mt-8 border-t border-white/5 pt-6">
-               <h4 className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+           <div className="mt-6 border-t border-white/5 pt-6">
+               <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-4 flex items-center gap-2">
                    <History size={12} />
                    Log History
                </h4>
@@ -608,7 +741,7 @@ export const ActivityTab: React.FC = () => {
                    <div className="flex justify-between items-center mb-8">
                        <h3 className="text-xl font-black text-white italic">LOG WEIGHT</h3>
                        <button onClick={() => setShowWeightModal(false)} className="p-2 bg-zinc-800 rounded-full text-zinc-400 hover:text-white">
-                           <X size={20} />
+                           <Trash2 size={20} />
                        </button>
                    </div>
                    
