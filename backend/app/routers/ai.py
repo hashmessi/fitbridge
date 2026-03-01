@@ -68,7 +68,6 @@ async def generate_plan(
         return GeneratePlanResponse(success=True, plan=plan)
     
     except Exception as e:
-        import traceback
         error_details = f"{type(e).__name__}: {str(e)}"
         return GeneratePlanResponse(success=False, error=error_details)
 
@@ -77,8 +76,9 @@ async def generate_plan(
 async def ai_status(ai_service: AIService = Depends(get_ai_service)):
     """Check AI service status and provider info"""
     settings = get_settings()
+    model = settings.openai_model if settings.ai_provider == "openai" else settings.deepseek_model_clean
     return {
         "provider": settings.ai_provider,
-        "model": settings.openai_model if settings.ai_provider == "openai" else "deepseek-chat",
+        "model": model,
         "ready": ai_service.is_ready()
     }

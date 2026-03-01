@@ -332,8 +332,6 @@ class SupabaseService:
         workout_completed: Optional[bool] = None
     ) -> Dict:
         """Update or create daily log entry"""
-        key = f"{user_id}_{log_date}"
-        
         response = await self._execute(
             lambda: (
                 self.client.table("daily_logs")

@@ -121,6 +121,7 @@ class AIService:
             )
             # Use .strip() to guard against trailing newlines/spaces in env vars (common paste issue)
             self.model = settings.deepseek_model.strip()
+
     def is_ready(self) -> bool:
         """Check if the AI service is properly configured"""
         if self.provider == "mock":

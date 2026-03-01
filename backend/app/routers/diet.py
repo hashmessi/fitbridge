@@ -47,9 +47,6 @@ def get_supabase_service() -> SupabaseService:
     return SupabaseService(settings)
 
 
-
-
-
 @router.post("/log")
 async def create_meal_log(
     meal: MealLogCreate,

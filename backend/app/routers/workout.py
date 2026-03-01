@@ -46,8 +46,6 @@ def get_supabase_service() -> SupabaseService:
 
 
 
-
-
 @router.post("/log")
 async def create_workout_log(
     workout: WorkoutLogCreate,
