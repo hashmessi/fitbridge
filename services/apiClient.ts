@@ -68,7 +68,7 @@ async function apiCall<T>(
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
   try {
-    const token = localStorage.getItem("fitbridge_access_token") || "";
+    const token = localStorage.getItem("fitbridge_token") || "";
 
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       ...options,
@@ -265,7 +265,7 @@ export async function* streamChatMessage(
   userContext?: any
 ): AsyncGenerator<string, void, unknown> {
   try {
-    const token = localStorage.getItem("fitbridge_access_token") || "";
+    const token = localStorage.getItem("fitbridge_token") || "";
 
     const response = await fetch(`${API_BASE_URL}/api/chat/stream`, {
       method: "POST",
