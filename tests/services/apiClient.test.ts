@@ -24,25 +24,25 @@ import {
 describe('checkHealth', () => {
   it('should return true when API is healthy', async () => {
     mockFetch({ status: 'healthy' }, true, 200);
-    
+
     const result = await checkHealth();
-    
+
     expect(result).toBe(true);
   });
 
   it('should return false when API is down', async () => {
     mockFetch({ error: 'Server error' }, false, 500);
-    
+
     const result = await checkHealth();
-    
+
     expect(result).toBe(false);
   });
 
   it('should return false on network error', async () => {
     mockFetchError('Network error');
-    
+
     const result = await checkHealth();
-    
+
     expect(result).toBe(false);
   });
 });
@@ -58,16 +58,16 @@ describe('logWorkout', () => {
 
   it('should send correct request payload', async () => {
     mockFetch({ success: true, data: { id: 'workout-1' } });
-    
+
     const workout = {
       title: 'Morning Run',
       duration_minutes: 30,
       workout_type: 'cardio',
       calories_burned: 300,
     };
-    
+
     await logWorkout(workout);
-    
+
     expect(global.fetch).toHaveBeenCalledWith(
       expect.stringContaining('/api/workout/log'),
       expect.objectContaining({
@@ -79,23 +79,23 @@ describe('logWorkout', () => {
 
   it('should return success response', async () => {
     mockFetch({ success: true, data: { id: 'workout-1' } });
-    
+
     const result = await logWorkout({
       title: 'Test Workout',
       duration_minutes: 45,
     });
-    
+
     expect(result.success).toBe(true);
   });
 
   it('should handle API errors', async () => {
     mockFetch({ detail: 'Validation error' }, false, 422);
-    
+
     const result = await logWorkout({
       title: 'Test',
       duration_minutes: 10,
     });
-    
+
     expect(result.success).toBe(false);
     expect(result.error).toBeDefined();
   });
@@ -112,9 +112,9 @@ describe('getWorkoutLogs', () => {
 
   it('should fetch workout logs with default parameters', async () => {
     mockFetch({ success: true, data: [] });
-    
+
     await getWorkoutLogs();
-    
+
     expect(global.fetch).toHaveBeenCalledWith(
       expect.stringContaining('/api/workout/logs?limit=10&offset=0'),
       expect.any(Object)
@@ -123,9 +123,9 @@ describe('getWorkoutLogs', () => {
 
   it('should accept custom limit and offset', async () => {
     mockFetch({ success: true, data: [] });
-    
+
     await getWorkoutLogs(5, 10);
-    
+
     expect(global.fetch).toHaveBeenCalledWith(
       expect.stringContaining('limit=5&offset=10'),
       expect.any(Object)
@@ -138,9 +138,9 @@ describe('getWorkoutLogs', () => {
       { id: '2', title: 'Workout 2', duration_minutes: 45 },
     ];
     mockFetch({ success: true, data: mockLogs });
-    
+
     const result = await getWorkoutLogs();
-    
+
     expect(result.success).toBe(true);
   });
 });
@@ -156,7 +156,7 @@ describe('logMeal', () => {
 
   it('should send correct request payload', async () => {
     mockFetch({ success: true, data: { id: 'meal-1' } });
-    
+
     const meal = {
       meal_type: 'Breakfast',
       meal_name: 'Oatmeal',
@@ -165,9 +165,9 @@ describe('logMeal', () => {
       carbs: 55,
       fats: 8,
     };
-    
+
     await logMeal(meal);
-    
+
     expect(global.fetch).toHaveBeenCalledWith(
       expect.stringContaining('/api/diet/log'),
       expect.objectContaining({
@@ -179,13 +179,13 @@ describe('logMeal', () => {
 
   it('should return success response', async () => {
     mockFetch({ success: true, data: { id: 'meal-1' } });
-    
+
     const result = await logMeal({
       meal_type: 'Lunch',
       meal_name: 'Salad',
       calories: 400,
     });
-    
+
     expect(result.success).toBe(true);
   });
 });
@@ -201,9 +201,9 @@ describe('getDietLogs', () => {
 
   it('should fetch diet logs with default parameters', async () => {
     mockFetch({ success: true, data: [] });
-    
+
     await getDietLogs();
-    
+
     expect(global.fetch).toHaveBeenCalledWith(
       expect.stringContaining('/api/diet/logs?limit=20'),
       expect.any(Object)
@@ -212,9 +212,9 @@ describe('getDietLogs', () => {
 
   it('should include date filter when provided', async () => {
     mockFetch({ success: true, data: [] });
-    
+
     await getDietLogs(20, '2025-12-21');
-    
+
     expect(global.fetch).toHaveBeenCalledWith(
       expect.stringContaining('log_date=2025-12-21'),
       expect.any(Object)
@@ -238,9 +238,9 @@ describe('generateWorkoutPlan', () => {
       schedule: [],
     };
     mockFetch({ success: true, data: { plan: mockPlan } });
-    
+
     const result = await generateWorkoutPlan('Build muscle');
-    
+
     expect(global.fetch).toHaveBeenCalledWith(
       expect.stringContaining('/api/ai/generate'),
       expect.objectContaining({
@@ -252,7 +252,7 @@ describe('generateWorkoutPlan', () => {
 
   it('should include user profile when provided', async () => {
     mockFetch({ success: true, data: { plan: {} } });
-    
+
     await generateWorkoutPlan('Lose weight', {
       name: 'Test',
       weight: 70,
@@ -260,10 +260,8 @@ describe('generateWorkoutPlan', () => {
       goal: 'weight_loss',
       fitness_level: 'beginner',
     });
-    
-    const callBody = JSON.parse(
-      (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body
-    );
+
+    const callBody = JSON.parse((global.fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body);
     expect(callBody.user_profile).toBeDefined();
     expect(callBody.plan_type).toBe('workout');
   });
@@ -280,12 +278,10 @@ describe('generateDietPlan', () => {
       meals: {},
     };
     mockFetch({ success: true, data: { plan: mockPlan } });
-    
+
     const result = await generateDietPlan('High protein diet');
-    
-    const callBody = JSON.parse(
-      (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body
-    );
+
+    const callBody = JSON.parse((global.fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body);
     expect(callBody.plan_type).toBe('diet');
     expect(result.success).toBe(true);
   });
@@ -298,12 +294,12 @@ describe('generateDietPlan', () => {
 describe('API Error Handling', () => {
   it('should handle network errors gracefully', async () => {
     mockFetchError('Network error');
-    
+
     const result = await logWorkout({
       title: 'Test',
       duration_minutes: 30,
     });
-    
+
     expect(result.success).toBe(false);
     expect(result.error).toContain('Network error');
   });
@@ -311,9 +307,9 @@ describe('API Error Handling', () => {
   it('should include authorization header', async () => {
     localStorage.setItem('fitbridge_token', 'my-secret-token');
     mockFetch({ success: true, data: [] });
-    
+
     await getWorkoutLogs();
-    
+
     const headers = (global.fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].headers;
     expect(headers.Authorization).toBe('Bearer my-secret-token');
   });

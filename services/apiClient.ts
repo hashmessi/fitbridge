@@ -4,7 +4,7 @@
  */
 
 // Configuration
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://fitbridge-api.onrender.com";
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://fitbridge-api.onrender.com';
 
 // Types
 export interface ApiResponse<T> {
@@ -63,17 +63,14 @@ export interface ApiUserProfile {
 }
 
 // Helper function for API calls
-async function apiCall<T>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<ApiResponse<T>> {
+async function apiCall<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
   try {
-    const token = localStorage.getItem("fitbridge_token") || "";
+    const token = localStorage.getItem('fitbridge_token') || '';
 
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       ...options,
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
         ...options.headers,
       },
@@ -82,15 +79,15 @@ async function apiCall<T>(
     const data = await response.json();
 
     if (!response.ok) {
-      return { success: false, error: data.detail || "API request failed" };
+      return { success: false, error: data.detail || 'API request failed' };
     }
 
     return { success: true, data };
   } catch (error) {
-    console.error("API call error:", error);
+    console.error('API call error:', error);
     return {
       success: false,
-      error: "Network error. Please check your connection.",
+      error: 'Network error. Please check your connection.',
     };
   }
 }
@@ -118,11 +115,15 @@ export async function generateWorkoutPlan(
 ): Promise<ApiResponse<WorkoutPlan>> {
   // The backend returns: { success: bool, plan: {...} | null, error: str | null }
   // apiCall wraps this as: { success: true, data: { success, plan, error } }
-  const response = await apiCall<{ success: boolean; plan: WorkoutPlan | null; error: string | null }>("/api/ai/generate", {
-    method: "POST",
+  const response = await apiCall<{
+    success: boolean;
+    plan: WorkoutPlan | null;
+    error: string | null;
+  }>('/api/ai/generate', {
+    method: 'POST',
     body: JSON.stringify({
       user_description: userDescription,
-      plan_type: "workout",
+      plan_type: 'workout',
       user_profile: userProfile,
     }),
   });
@@ -130,7 +131,7 @@ export async function generateWorkoutPlan(
   if (response.success && response.data?.success && response.data.plan) {
     return { success: true, data: response.data.plan };
   }
-  const errorMsg = response.data?.error || response.error || "AI generation failed";
+  const errorMsg = response.data?.error || response.error || 'AI generation failed';
   return { success: false, error: errorMsg };
 }
 
@@ -139,19 +140,22 @@ export async function generateDietPlan(
   userProfile?: ApiUserProfile
 ): Promise<ApiResponse<DietPlan>> {
   // The backend returns: { success: bool, plan: {...} | null, error: str | null }
-  const response = await apiCall<{ success: boolean; plan: DietPlan | null; error: string | null }>("/api/ai/generate", {
-    method: "POST",
-    body: JSON.stringify({
-      user_description: userDescription,
-      plan_type: "diet",
-      user_profile: userProfile,
-    }),
-  });
+  const response = await apiCall<{ success: boolean; plan: DietPlan | null; error: string | null }>(
+    '/api/ai/generate',
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        user_description: userDescription,
+        plan_type: 'diet',
+        user_profile: userProfile,
+      }),
+    }
+  );
 
   if (response.success && response.data?.success && response.data.plan) {
     return { success: true, data: response.data.plan };
   }
-  const errorMsg = response.data?.error || response.error || "AI generation failed";
+  const errorMsg = response.data?.error || response.error || 'AI generation failed';
   return { success: false, error: errorMsg };
 }
 
@@ -168,8 +172,8 @@ export async function logWorkout(workout: {
   notes?: string;
   is_ai_generated?: boolean;
 }): Promise<ApiResponse<any>> {
-  return apiCall("/api/workout/log", {
-    method: "POST",
+  return apiCall('/api/workout/log', {
+    method: 'POST',
     body: JSON.stringify(workout),
   });
 }
@@ -181,17 +185,13 @@ export async function getWorkoutLogs(
   return apiCall(`/api/workout/logs?limit=${limit}&offset=${offset}`);
 }
 
-export async function getWorkoutStats(
-  days: number = 7
-): Promise<ApiResponse<any>> {
+export async function getWorkoutStats(days: number = 7): Promise<ApiResponse<any>> {
   return apiCall(`/api/workout/stats?days=${days}`);
 }
 
-export async function deleteWorkoutLog(
-  workoutId: string
-): Promise<ApiResponse<any>> {
+export async function deleteWorkoutLog(workoutId: string): Promise<ApiResponse<any>> {
   return apiCall(`/api/workout/logs/${workoutId}`, {
-    method: "DELETE",
+    method: 'DELETE',
   });
 }
 
@@ -209,8 +209,8 @@ export async function logMeal(meal: {
   description?: string;
   is_ai_generated?: boolean;
 }): Promise<ApiResponse<any>> {
-  return apiCall("/api/diet/log", {
-    method: "POST",
+  return apiCall('/api/diet/log', {
+    method: 'POST',
     body: JSON.stringify(meal),
   });
 }
@@ -225,18 +225,16 @@ export async function getDietLogs(
 }
 
 export async function getTodayMeals(): Promise<ApiResponse<any>> {
-  return apiCall("/api/diet/logs/today");
+  return apiCall('/api/diet/logs/today');
 }
 
-export async function getDietStats(
-  days: number = 7
-): Promise<ApiResponse<any>> {
+export async function getDietStats(days: number = 7): Promise<ApiResponse<any>> {
   return apiCall(`/api/diet/stats?days=${days}`);
 }
 
 export async function deleteMealLog(mealId: string): Promise<ApiResponse<any>> {
   return apiCall(`/api/diet/logs/${mealId}`, {
-    method: "DELETE",
+    method: 'DELETE',
   });
 }
 
@@ -249,8 +247,8 @@ export async function sendChatMessage(
   history: { role: string; content: string }[] = [],
   userContext?: any
 ): Promise<ApiResponse<{ response: string }>> {
-  return apiCall("/api/chat/send", {
-    method: "POST",
+  return apiCall('/api/chat/send', {
+    method: 'POST',
     body: JSON.stringify({
       message,
       history,
@@ -265,12 +263,12 @@ export async function* streamChatMessage(
   userContext?: any
 ): AsyncGenerator<string, void, unknown> {
   try {
-    const token = localStorage.getItem("fitbridge_token") || "";
+    const token = localStorage.getItem('fitbridge_token') || '';
 
     const response = await fetch(`${API_BASE_URL}/api/chat/stream`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
@@ -281,11 +279,11 @@ export async function* streamChatMessage(
     });
 
     if (!response.ok) {
-      throw new Error("Failed to stream response");
+      throw new Error('Failed to stream response');
     }
 
     const reader = response.body?.getReader();
-    if (!reader) throw new Error("No reader available");
+    if (!reader) throw new Error('No reader available');
 
     const decoder = new TextDecoder();
 
@@ -294,10 +292,10 @@ export async function* streamChatMessage(
       if (done) break;
 
       const chunk = decoder.decode(value);
-      const lines = chunk.split("\n");
+      const lines = chunk.split('\n');
 
       for (const line of lines) {
-        if (line.startsWith("data: ")) {
+        if (line.startsWith('data: ')) {
           try {
             const data = JSON.parse(line.slice(6));
             if (data.content) {
@@ -313,13 +311,11 @@ export async function* streamChatMessage(
       }
     }
   } catch (error) {
-    console.error("Stream error:", error);
+    console.error('Stream error:', error);
     throw error;
   }
 }
 
-export async function getChatSuggestions(): Promise<
-  ApiResponse<{ suggestions: string[] }>
-> {
-  return apiCall("/api/chat/suggestions");
+export async function getChatSuggestions(): Promise<ApiResponse<{ suggestions: string[] }>> {
+  return apiCall('/api/chat/suggestions');
 }

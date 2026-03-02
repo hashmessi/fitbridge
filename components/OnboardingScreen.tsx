@@ -4,8 +4,8 @@
  */
 
 import React, { useState } from 'react';
-import { 
-  ChevronRight, 
+import {
+  ChevronRight,
   ChevronLeft,
   Loader2,
   Target,
@@ -13,7 +13,7 @@ import {
   Scale,
   Ruler,
   Sparkles,
-  Check
+  Check,
 } from 'lucide-react';
 
 interface OnboardingProps {
@@ -30,10 +30,20 @@ interface UserProfile {
 }
 
 const GOALS = [
-  { id: 'Muscle Gain', label: 'Build Muscle', icon: Dumbbell, color: 'from-blue-500 to-indigo-500' },
+  {
+    id: 'Muscle Gain',
+    label: 'Build Muscle',
+    icon: Dumbbell,
+    color: 'from-blue-500 to-indigo-500',
+  },
   { id: 'Fat Loss', label: 'Lose Fat', icon: Target, color: 'from-orange-500 to-red-500' },
   { id: 'Maintenance', label: 'Stay Fit', icon: Scale, color: 'from-green-500 to-emerald-500' },
-  { id: 'Endurance', label: 'Build Endurance', icon: Sparkles, color: 'from-purple-500 to-pink-500' },
+  {
+    id: 'Endurance',
+    label: 'Build Endurance',
+    icon: Sparkles,
+    color: 'from-purple-500 to-pink-500',
+  },
 ];
 
 const FITNESS_LEVELS = [
@@ -45,7 +55,7 @@ const FITNESS_LEVELS = [
 export const OnboardingScreen: React.FC<OnboardingProps> = ({ userId, onComplete }) => {
   const [step, setStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   // Profile state
   const [name, setName] = useState('');
   const [weight, setWeight] = useState<number>(70);
@@ -61,10 +71,14 @@ export const OnboardingScreen: React.FC<OnboardingProps> = ({ userId, onComplete
 
   const canProceed = () => {
     switch (step) {
-      case 0: return name.trim().length > 0 && weight > 0 && height > 0;
-      case 1: return goal !== '';
-      case 2: return fitnessLevel !== '';
-      default: return false;
+      case 0:
+        return name.trim().length > 0 && weight > 0 && height > 0;
+      case 1:
+        return goal !== '';
+      case 2:
+        return fitnessLevel !== '';
+      default:
+        return false;
     }
   };
 
@@ -85,7 +99,8 @@ export const OnboardingScreen: React.FC<OnboardingProps> = ({ userId, onComplete
 
         // Save to Supabase — try INSERT first, fallback to UPDATE
         try {
-          const { createUserProfile, updateUserProfile, isSupabaseConfigured } = await import('../services/supabaseClient');
+          const { createUserProfile, updateUserProfile, isSupabaseConfigured } =
+            await import('../services/supabaseClient');
           if (isSupabaseConfigured()) {
             try {
               await createUserProfile(userId, { ...profile, email: '' });
@@ -126,12 +141,11 @@ export const OnboardingScreen: React.FC<OnboardingProps> = ({ userId, onComplete
       </div>
 
       <div className="relative z-10 flex-1 flex flex-col max-w-md mx-auto w-full px-6 py-8">
-        
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex justify-between mb-2">
             {steps.map((_, i) => (
-              <div 
+              <div
                 key={i}
                 className={`h-1.5 flex-1 mx-0.5 rounded-full transition-all duration-500 ${
                   i <= step ? 'bg-primary' : 'bg-zinc-800'
@@ -147,7 +161,6 @@ export const OnboardingScreen: React.FC<OnboardingProps> = ({ userId, onComplete
 
         {/* Step Content */}
         <div className="flex-1">
-          
           {/* Step 0: Personal Info */}
           {step === 0 && (
             <div className="space-y-6 animate-fadeIn">
@@ -216,15 +229,15 @@ export const OnboardingScreen: React.FC<OnboardingProps> = ({ userId, onComplete
                       : 'bg-zinc-900/50 border-zinc-800 text-zinc-300 hover:border-zinc-700'
                   }`}
                 >
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                    goal === g.id ? 'bg-white/20' : 'bg-zinc-800'
-                  }`}>
+                  <div
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                      goal === g.id ? 'bg-white/20' : 'bg-zinc-800'
+                    }`}
+                  >
                     <g.icon className="w-6 h-6" />
                   </div>
                   <span className="font-medium text-lg">{g.label}</span>
-                  {goal === g.id && (
-                    <Check className="w-5 h-5 ml-auto" />
-                  )}
+                  {goal === g.id && <Check className="w-5 h-5 ml-auto" />}
                 </button>
               ))}
             </div>
@@ -268,7 +281,7 @@ export const OnboardingScreen: React.FC<OnboardingProps> = ({ userId, onComplete
               <ChevronLeft className="w-5 h-5" />
             </button>
           )}
-          
+
           <button
             onClick={handleNext}
             disabled={!canProceed() || isLoading}

@@ -28,6 +28,7 @@ Authorization: Bearer <user_token>
 Check API status.
 
 **Response:**
+
 ```json
 {
   "status": "healthy",
@@ -42,6 +43,7 @@ Check API status.
 Quick connectivity check.
 
 **Response:**
+
 ```json
 { "pong": true }
 ```
@@ -55,6 +57,7 @@ Quick connectivity check.
 Generate workout or diet plan.
 
 **Request:**
+
 ```json
 {
   "user_description": "Build muscle, 4 days per week, intermediate level",
@@ -70,6 +73,7 @@ Generate workout or diet plan.
 ```
 
 **Response (Workout):**
+
 ```json
 {
   "success": true,
@@ -95,6 +99,7 @@ Generate workout or diet plan.
 ```
 
 **Response (Diet):**
+
 ```json
 {
   "success": true,
@@ -120,6 +125,7 @@ Generate workout or diet plan.
 Check AI service status.
 
 **Response:**
+
 ```json
 {
   "provider": "openai",
@@ -137,15 +143,14 @@ Check AI service status.
 Log a completed workout.
 
 **Request:**
+
 ```json
 {
   "title": "Morning Chest Day",
   "duration_minutes": 45,
   "workout_type": "strength",
   "calories_burned": 280,
-  "exercises": [
-    { "name": "Bench Press", "sets": 4, "reps": "10" }
-  ],
+  "exercises": [{ "name": "Bench Press", "sets": 4, "reps": "10" }],
   "notes": "Felt strong today",
   "is_ai_generated": false,
   "workout_date": "2025-12-21"
@@ -153,6 +158,7 @@ Log a completed workout.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -178,6 +184,7 @@ Get workout history.
 | `offset` | int | 0 | Pagination offset |
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -205,6 +212,7 @@ Get workout statistics.
 | `days` | int | 7 | Period in days |
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -226,6 +234,7 @@ Get workout statistics.
 Delete a workout log.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -242,6 +251,7 @@ Delete a workout log.
 Log a meal.
 
 **Request:**
+
 ```json
 {
   "meal_type": "Breakfast",
@@ -257,6 +267,7 @@ Log a meal.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -286,6 +297,7 @@ Get meal history.
 Get today's meals with totals.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -323,6 +335,7 @@ Delete a meal log.
 Send message to AI coach.
 
 **Request:**
+
 ```json
 {
   "message": "How can I improve my bench press?",
@@ -338,6 +351,7 @@ Send message to AI coach.
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -354,6 +368,7 @@ Stream AI response (Server-Sent Events).
 **Request:** Same as `/api/chat/send`
 
 **Response (SSE):**
+
 ```
 data: {"content": "Great "}
 data: {"content": "question! "}
@@ -366,6 +381,7 @@ data: {"done": true}
 Get suggested questions.
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -392,10 +408,10 @@ All errors follow this format:
 }
 ```
 
-| Status | Meaning |
-|--------|---------|
-| 400 | Bad request |
-| 401 | Unauthorized |
-| 404 | Not found |
-| 422 | Validation error |
-| 500 | Server error |
+| Status | Meaning          |
+| ------ | ---------------- |
+| 400    | Bad request      |
+| 401    | Unauthorized     |
+| 404    | Not found        |
+| 422    | Validation error |
+| 500    | Server error     |

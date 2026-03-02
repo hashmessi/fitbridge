@@ -108,7 +108,7 @@ export async function signUp(email: string, password: string, name: string) {
       data: { name },
     },
   });
-  
+
   if (error) throw error;
   return data;
 }
@@ -118,14 +118,14 @@ export async function signIn(email: string, password: string) {
     email,
     password,
   });
-  
+
   if (error) throw error;
-  
+
   if (data.session) {
     localStorage.setItem('fitbridge_token', data.user.id);
     localStorage.setItem('fitbridge_access_token', data.session.access_token);
   }
-  
+
   return data;
 }
 
@@ -136,7 +136,7 @@ export async function signInWithGoogle() {
       redirectTo: `${window.location.origin}/auth/callback`,
     },
   });
-  
+
   if (error) throw error;
   return data;
 }
@@ -150,16 +150,16 @@ export async function signOut() {
 
 export async function getSession() {
   if (!isSupabaseConfigured()) return null;
-  
+
   try {
     const { data, error } = await supabase.auth.getSession();
     if (error) throw error;
-    
+
     if (data.session) {
       localStorage.setItem('fitbridge_token', data.session.user.id);
       localStorage.setItem('fitbridge_access_token', data.session.access_token);
     }
-    
+
     return data.session;
   } catch {
     return null;
@@ -168,7 +168,7 @@ export async function getSession() {
 
 export async function getCurrentUser() {
   if (!isSupabaseConfigured()) return null;
-  
+
   try {
     const { data, error } = await supabase.auth.getUser();
     if (error) {
@@ -181,9 +181,7 @@ export async function getCurrentUser() {
   }
 }
 
-export function onAuthStateChange(
-  callback: (event: string, session: Session | null) => void
-) {
+export function onAuthStateChange(callback: (event: string, session: Session | null) => void) {
   return supabase.auth.onAuthStateChange((event, session) => {
     if (session) {
       localStorage.setItem('fitbridge_token', session.user.id);
@@ -202,13 +200,9 @@ export function onAuthStateChange(
 
 export async function getUserProfile(userId: string): Promise<DbUserProfile | null> {
   if (!isSupabaseConfigured()) return null;
-  
-  const { data, error } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', userId)
-    .single();
-  
+
+  const { data, error } = await supabase.from('users').select('*').eq('id', userId).single();
+
   if (error) {
     if (error.code === 'PGRST116') return null; // Not found
     throw error;
@@ -216,7 +210,10 @@ export async function getUserProfile(userId: string): Promise<DbUserProfile | nu
   return data;
 }
 
-export async function createUserProfile(userId: string, profile: Partial<DbUserProfile>): Promise<DbUserProfile> {
+export async function createUserProfile(
+  userId: string,
+  profile: Partial<DbUserProfile>
+): Promise<DbUserProfile> {
   const { data, error } = await supabase
     .from('users')
     .insert({
@@ -230,19 +227,22 @@ export async function createUserProfile(userId: string, profile: Partial<DbUserP
     })
     .select()
     .single();
-  
+
   if (error) throw error;
   return data;
 }
 
-export async function updateUserProfile(userId: string, updates: Partial<DbUserProfile>): Promise<DbUserProfile> {
+export async function updateUserProfile(
+  userId: string,
+  updates: Partial<DbUserProfile>
+): Promise<DbUserProfile> {
   const { data, error } = await supabase
     .from('users')
     .update(updates)
     .eq('id', userId)
     .select()
     .single();
-  
+
   if (error) throw error;
   return data;
 }
@@ -253,24 +253,21 @@ export async function updateUserProfile(userId: string, updates: Partial<DbUserP
 
 export async function getUserStreaks(userId: string): Promise<DbStreak[]> {
   if (!isSupabaseConfigured()) return [];
-  
-  const { data, error } = await supabase
-    .from('streaks')
-    .select('*')
-    .eq('user_id', userId);
-  
+
+  const { data, error } = await supabase.from('streaks').select('*').eq('user_id', userId);
+
   if (error) throw error;
   return data || [];
 }
 
 export async function updateStreak(
-  userId: string, 
+  userId: string,
   streakType: 'workout' | 'diet' | 'login' | 'steps',
   increment: number = 1,
   xpGained: number = 10
 ): Promise<DbStreak | null> {
   if (!isSupabaseConfigured()) return null;
-  
+
   // Get current streak
   const { data: current } = await supabase
     .from('streaks')
@@ -278,15 +275,21 @@ export async function updateStreak(
     .eq('user_id', userId)
     .eq('streak_type', streakType)
     .single();
-  
+
   const today = new Date().toISOString().split('T')[0];
   const newStreak = (current?.current_streak || 0) + increment;
   const newXp = (current?.xp_earned || 0) + xpGained;
   const newLevel = Math.floor(newXp / 100) + 1;
-  
-  const levelTitles = ['Beginner', 'Rising Star', 'Fitness Enthusiast', 'Fitness Pro', 'Elite Athlete'];
+
+  const levelTitles = [
+    'Beginner',
+    'Rising Star',
+    'Fitness Enthusiast',
+    'Fitness Pro',
+    'Elite Athlete',
+  ];
   const levelTitle = levelTitles[Math.min(newLevel - 1, levelTitles.length - 1)];
-  
+
   const { data, error } = await supabase
     .from('streaks')
     .upsert({
@@ -301,21 +304,29 @@ export async function updateStreak(
     })
     .select()
     .single();
-  
+
   if (error) throw error;
   return data;
 }
 
-export async function getTotalXP(userId: string): Promise<{ xp: number; level: number; title: string }> {
+export async function getTotalXP(
+  userId: string
+): Promise<{ xp: number; level: number; title: string }> {
   if (!isSupabaseConfigured()) return { xp: 0, level: 1, title: 'Beginner' };
-  
+
   const streaks = await getUserStreaks(userId);
   const totalXp = streaks.reduce((sum, s) => sum + (s.xp_earned || 0), 0);
   const level = Math.floor(totalXp / 100) + 1;
-  
-  const levelTitles = ['Beginner', 'Rising Star', 'Fitness Enthusiast', 'Fitness Pro', 'Elite Athlete'];
+
+  const levelTitles = [
+    'Beginner',
+    'Rising Star',
+    'Fitness Enthusiast',
+    'Fitness Pro',
+    'Elite Athlete',
+  ];
   const title = levelTitles[Math.min(level - 1, levelTitles.length - 1)];
-  
+
   return { xp: totalXp, level, title };
 }
 
@@ -325,7 +336,7 @@ export async function getTotalXP(userId: string): Promise<{ xp: number; level: n
 
 export async function logWorkout(workout: DbWorkoutLog): Promise<DbWorkoutLog | null> {
   if (!isSupabaseConfigured()) return null;
-  
+
   const { data, error } = await supabase
     .from('workout_logs')
     .insert({
@@ -341,43 +352,43 @@ export async function logWorkout(workout: DbWorkoutLog): Promise<DbWorkoutLog | 
     })
     .select()
     .single();
-  
+
   if (error) throw error;
-  
+
   // Update workout streak
   await updateStreak(workout.user_id, 'workout', 1, 25);
-  
+
   return data;
 }
 
 export async function getWorkoutLogs(userId: string, limit: number = 10): Promise<DbWorkoutLog[]> {
   if (!isSupabaseConfigured()) return [];
-  
+
   const { data, error } = await supabase
     .from('workout_logs')
     .select('*')
     .eq('user_id', userId)
     .order('workout_date', { ascending: false })
     .limit(limit);
-  
+
   if (error) throw error;
   return data || [];
 }
 
 export async function getWorkoutStats(userId: string, days: number = 7) {
   if (!isSupabaseConfigured()) return null;
-  
+
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - days);
-  
+
   const { data, error } = await supabase
     .from('workout_logs')
     .select('*')
     .eq('user_id', userId)
     .gte('workout_date', startDate.toISOString().split('T')[0]);
-  
+
   if (error) throw error;
-  
+
   return {
     total_workouts: data?.length || 0,
     total_minutes: data?.reduce((sum, w) => sum + (w.duration_minutes || 0), 0) || 0,
@@ -391,7 +402,7 @@ export async function getWorkoutStats(userId: string, days: number = 7) {
 
 export async function logMeal(meal: DbDietLog): Promise<DbDietLog | null> {
   if (!isSupabaseConfigured()) return null;
-  
+
   const { data, error } = await supabase
     .from('diet_logs')
     .insert({
@@ -408,38 +419,42 @@ export async function logMeal(meal: DbDietLog): Promise<DbDietLog | null> {
     })
     .select()
     .single();
-  
+
   if (error) throw error;
-  
+
   // Update diet streak
   await updateStreak(meal.user_id, 'diet', 0, 10);
-  
+
   return data;
 }
 
-export async function getDietLogs(userId: string, date?: string, limit: number = 20): Promise<DbDietLog[]> {
+export async function getDietLogs(
+  userId: string,
+  date?: string,
+  limit: number = 20
+): Promise<DbDietLog[]> {
   if (!isSupabaseConfigured()) return [];
-  
+
   let query = supabase
     .from('diet_logs')
     .select('*')
     .eq('user_id', userId)
     .order('log_date', { ascending: false })
     .limit(limit);
-  
+
   if (date) {
     query = query.eq('log_date', date);
   }
-  
+
   const { data, error } = await query;
-  
+
   if (error) throw error;
   return data || [];
 }
 
 export async function getTodayCalories(userId: string): Promise<number> {
   if (!isSupabaseConfigured()) return 0;
-  
+
   const today = new Date().toISOString().split('T')[0];
   const meals = await getDietLogs(userId, today);
   return meals.reduce((sum, m) => sum + (m.calories || 0), 0);
@@ -451,14 +466,14 @@ export async function getTodayCalories(userId: string): Promise<number> {
 
 export async function saveAIPlan(plan: DbAIPlan): Promise<DbAIPlan | null> {
   if (!isSupabaseConfigured()) return null;
-  
+
   // Deactivate old plans of same type
   await supabase
     .from('ai_plans')
     .update({ is_active: false })
     .eq('user_id', plan.user_id)
     .eq('plan_type', plan.plan_type);
-  
+
   const { data, error } = await supabase
     .from('ai_plans')
     .insert({
@@ -475,14 +490,17 @@ export async function saveAIPlan(plan: DbAIPlan): Promise<DbAIPlan | null> {
     })
     .select()
     .single();
-  
+
   if (error) throw error;
   return data;
 }
 
-export async function getActiveAIPlan(userId: string, planType: 'workout' | 'diet'): Promise<DbAIPlan | null> {
+export async function getActiveAIPlan(
+  userId: string,
+  planType: 'workout' | 'diet'
+): Promise<DbAIPlan | null> {
   if (!isSupabaseConfigured()) return null;
-  
+
   const { data, error } = await supabase
     .from('ai_plans')
     .select('*')
@@ -492,7 +510,7 @@ export async function getActiveAIPlan(userId: string, planType: 'workout' | 'die
     .order('created_at', { ascending: false })
     .limit(1)
     .single();
-  
+
   if (error) {
     if (error.code === 'PGRST116') return null;
     throw error;
@@ -504,17 +522,20 @@ export async function getActiveAIPlan(userId: string, planType: 'workout' | 'die
 // DAILY LOGS
 // ==========================================
 
-export async function updateDailyLog(userId: string, updates: {
-  calories_consumed?: number;
-  calories_burned?: number;
-  steps?: number;
-  water_intake?: number;
-  workout_completed?: boolean;
-}) {
+export async function updateDailyLog(
+  userId: string,
+  updates: {
+    calories_consumed?: number;
+    calories_burned?: number;
+    steps?: number;
+    water_intake?: number;
+    workout_completed?: boolean;
+  }
+) {
   if (!isSupabaseConfigured()) return null;
-  
+
   const today = new Date().toISOString().split('T')[0];
-  
+
   const { data, error } = await supabase
     .from('daily_logs')
     .upsert({
@@ -524,23 +545,23 @@ export async function updateDailyLog(userId: string, updates: {
     })
     .select()
     .single();
-  
+
   if (error) throw error;
   return data;
 }
 
 export async function getDailyLog(userId: string, date?: string) {
   if (!isSupabaseConfigured()) return null;
-  
+
   const targetDate = date || new Date().toISOString().split('T')[0];
-  
+
   const { data, error } = await supabase
     .from('daily_logs')
     .select('*')
     .eq('user_id', userId)
     .eq('log_date', targetDate)
     .single();
-  
+
   if (error) {
     if (error.code === 'PGRST116') return null;
     throw error;
@@ -579,4 +600,3 @@ export function subscribeToUserData(
 export function isSupabaseConfigured(): boolean {
   return Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 }
-

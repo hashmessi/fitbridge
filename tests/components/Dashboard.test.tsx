@@ -31,17 +31,23 @@ const mockNavigate = vi.fn();
 describe('Dashboard Component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Mock localStorage data
-    localStorage.setItem('fitbridge_streak', JSON.stringify({
-      count: 5,
-      lastActivityDate: new Date().toISOString().split('T')[0],
-    }));
-    
-    localStorage.setItem('fitbridge_xp', JSON.stringify({
-      total: 150,
-      dailyActivities: [],
-    }));
+    localStorage.setItem(
+      'fitbridge_streak',
+      JSON.stringify({
+        count: 5,
+        lastActivityDate: new Date().toISOString().split('T')[0],
+      })
+    );
+
+    localStorage.setItem(
+      'fitbridge_xp',
+      JSON.stringify({
+        total: 150,
+        dailyActivities: [],
+      })
+    );
   });
 
   describe('Rendering', () => {
@@ -52,14 +58,14 @@ describe('Dashboard Component', () => {
 
     it('should display user name in greeting', () => {
       render(<Dashboard user={mockUser} onNavigate={mockNavigate} />);
-      
+
       // Check that the user's name appears somewhere in the document
       expect(document.body.textContent).toContain('Test User');
     });
 
     it('should display streak section', () => {
       render(<Dashboard user={mockUser} onNavigate={mockNavigate} />);
-      
+
       // The streak section should show "Days" label
       const bodyText = document.body.textContent || '';
       expect(bodyText).toContain('Days');
@@ -67,7 +73,7 @@ describe('Dashboard Component', () => {
 
     it('should render action buttons', () => {
       render(<Dashboard user={mockUser} onNavigate={mockNavigate} />);
-      
+
       // Dashboard should have interactive elements
       const buttons = screen.queryAllByRole('button');
       expect(buttons.length).toBeGreaterThanOrEqual(0);
@@ -76,16 +82,14 @@ describe('Dashboard Component', () => {
 
   describe('User with zero stats', () => {
     it('should handle user with zero XP gracefully', () => {
-      const newUser: UserProfile = { 
-        ...mockUser, 
-        xp: 0, 
-        streak: 0 
+      const newUser: UserProfile = {
+        ...mockUser,
+        xp: 0,
+        streak: 0,
       };
-      
-      const { container } = render(
-        <Dashboard user={newUser} onNavigate={mockNavigate} />
-      );
-      
+
+      const { container } = render(<Dashboard user={newUser} onNavigate={mockNavigate} />);
+
       // Should render without errors
       expect(container).toBeTruthy();
     });
@@ -101,11 +105,9 @@ describe('Dashboard Component', () => {
         xp: 0,
         levelTitle: 'Newcomer',
       };
-      
-      const { container } = render(
-        <Dashboard user={newUser} onNavigate={mockNavigate} />
-      );
-      
+
+      const { container } = render(<Dashboard user={newUser} onNavigate={mockNavigate} />);
+
       expect(container).toBeTruthy();
     });
   });

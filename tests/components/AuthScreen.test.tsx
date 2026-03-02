@@ -51,19 +51,19 @@ describe('AuthScreen Component', () => {
   describe('Form Inputs', () => {
     it('should allow typing in email field', () => {
       render(<AuthScreen onAuthSuccess={mockOnAuthSuccess} />);
-      
+
       const emailInput = screen.getByPlaceholderText(/email/i) as HTMLInputElement;
       fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
-      
+
       expect(emailInput.value).toBe('test@example.com');
     });
 
     it('should allow typing in password field', () => {
       render(<AuthScreen onAuthSuccess={mockOnAuthSuccess} />);
-      
+
       const passwordInput = screen.getByPlaceholderText(/password/i) as HTMLInputElement;
       fireEvent.change(passwordInput, { target: { value: 'testpassword' } });
-      
+
       expect(passwordInput.value).toBe('testpassword');
     });
   });
@@ -71,7 +71,7 @@ describe('AuthScreen Component', () => {
   describe('Form Interactions', () => {
     it('should have submit button', () => {
       render(<AuthScreen onAuthSuccess={mockOnAuthSuccess} />);
-      
+
       const buttons = screen.getAllByRole('button');
       expect(buttons.length).toBeGreaterThan(0);
     });
@@ -87,10 +87,9 @@ describe('AuthScreen Component', () => {
   describe('Password Input', () => {
     it('should have password type by default', () => {
       render(<AuthScreen onAuthSuccess={mockOnAuthSuccess} />);
-      
+
       const passwordInput = screen.getByPlaceholderText(/password/i) as HTMLInputElement;
       expect(passwordInput.type).toBe('password');
     });
   });
 });
-

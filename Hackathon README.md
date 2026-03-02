@@ -1,4 +1,5 @@
-# FitBridge 🏋️  
+# FitBridge 🏋️
+
 ### GenAI-Driven Fitness Intelligence Platform for Real-World Consistency
 
 FitBridge is a **Generative AI–powered fitness intelligence system** that dynamically adapts workout and diet plans based on real user behavior, constraints, and consistency signals.
@@ -13,6 +14,7 @@ FitBridge is a **Generative AI–powered fitness intelligence system** that dyna
 Despite thousands of fitness applications, **over 70% of users quit within the first 30 days**.
 
 ### Why this happens:
+
 - Fitness plans are **static and rigid**
 - Apps ignore **real-world constraints** (missed days, fatigue, time limits)
 - Streak breaks reduce motivation
@@ -39,6 +41,7 @@ FitBridge is not a fitness tracker with AI features.
 It is an **AI decision engine** that continuously adapts fitness plans.
 
 ### What GenAI does in FitBridge:
+
 - Interprets user goals, constraints, and daily behavior
 - Detects adherence risk and burnout patterns
 - Generates adaptive micro-plans instead of rigid schedules
@@ -63,7 +66,7 @@ It is an **AI decision engine** that continuously adapts fitness plans.
    - Protects streaks intelligently
 
 3. **Action**
-   - Generates an updated workout or diet plan for *today*
+   - Generates an updated workout or diet plan for _today_
    - Suggests micro-goals (e.g., 12-minute workout instead of 60)
 
 4. **Feedback**
@@ -79,31 +82,35 @@ This loop runs continuously.
 
 ## 🎯 What Makes FitBridge Different
 
-| Traditional Fitness Apps | FitBridge |
-|--------------------------|----------|
-| Static plans | Adaptive GenAI decisions |
-| Punish missed workouts | Adjust intelligently |
-| Cosmetic motivation | Algorithmic motivation |
-| Fragile streaks | AI-protected streaks |
-| Manual thinking | AI reasoning |
+| Traditional Fitness Apps | FitBridge                |
+| ------------------------ | ------------------------ |
+| Static plans             | Adaptive GenAI decisions |
+| Punish missed workouts   | Adjust intelligently     |
+| Cosmetic motivation      | Algorithmic motivation   |
+| Fragile streaks          | AI-protected streaks     |
+| Manual thinking          | AI reasoning             |
 
 ---
 
 ## 🤖 Key GenAI Capabilities
 
 ### 🏋️ Adaptive Workout Generation
+
 - Personalized routines based on real availability
 - Automatic intensity scaling after missed sessions
 
 ### 🥗 Intelligent Diet Planning
+
 - Dynamic calorie and macro adjustments
 - Regional preferences (Indian, Mediterranean, etc.)
 
 ### 💬 Conversational AI Coach
+
 - Real-time explanations and guidance
 - Form tips, recovery advice, and motivation
 
 ### 🔥 AI-Driven Streak Protection
+
 - Streaks used as behavioral signals
 - AI reduces plan difficulty to prevent burnout
 
@@ -112,11 +119,13 @@ This loop runs continuously.
 ## 🌍 Impact & Use Cases
 
 ### Target Users
+
 - Students and working professionals with inconsistent schedules
 - Fitness beginners overwhelmed by rigid plans
 - Users who frequently start and quit fitness journeys
 
 ### Expected Impact
+
 - Higher long-term adherence
 - Reduced burnout and drop-off
 - Sustainable habit formation
@@ -129,12 +138,14 @@ This loop runs continuously.
 FitBridge is a **fully built and deployed GenAI system**.
 
 ### High-Level Stack
+
 - **Frontend:** React 19 + TypeScript + Vite (Vercel)
 - **Backend:** Python + FastAPI (Render)
 - **Database:** Supabase (PostgreSQL + Row Level Security)
 - **AI Providers:** OpenAI GPT-4o / DeepSeek
 
 ### Architecture Summary
+
 - Secure authentication and user isolation
 - Real-time data synchronization
 - API-first scalable design
@@ -147,12 +158,12 @@ This is **not a concept demo** — it is a working product.
 ## 🚀 Live Demo
 
 🌐 **Try FitBridge Live**  
--*(https://fitbridge.vercel.app/)*
+-_(https://fitbridge.vercel.app/)_
 
-🚀 **Demo video**
--*(https://drive.google.com/file/d/1QHmggcg-M-U-LPUYfeurpmnnskEyQczn/view)*
+🚀 **Demo video** -_(https://drive.google.com/file/d/1QHmggcg-M-U-LPUYfeurpmnnskEyQczn/view)_
 
 Includes:
+
 - AI workout & diet generation
 - Real-time AI chat
 - Streaks and analytics
@@ -168,13 +179,14 @@ Includes:
 - Health checks and API documentation
 
 Judges can validate:
+
 - Code quality
 - AI integration depth
 - Deployment readiness
 
 ---
 
-## 🏆 Hackathon Alignment 
+## 🏆 Hackathon Alignment
 
 **Innovation:**  
 GenAI used for real-time decision-making, not static content.

@@ -11,6 +11,7 @@ Architecture breakdown for understanding the codebase.
 **Purpose:** Home screen with user stats and quick actions.
 
 **Features:**
+
 - Streak display and management
 - XP/Level progress
 - Daily activity ring
@@ -25,6 +26,7 @@ Architecture breakdown for understanding the codebase.
 | `todayWorkout` | API | Today's workout status |
 
 **Key Functions:**
+
 - `loadDashboardData()` - Fetch all dashboard data
 - `checkAndUpdateStreak()` - Validate and update streak
 - `recordActivity()` - Log XP-earning activity
@@ -36,17 +38,20 @@ Architecture breakdown for understanding the codebase.
 **Purpose:** AI workout generation and logging.
 
 **Features:**
+
 - Generate AI workout plans
 - Display workout schedule
 - Log completed workouts
 - Exercise completion tracking
 
 **API Calls:**
+
 - `POST /api/ai/generate` (plan_type: workout)
 - `POST /api/workout/log`
 - `GET /api/workout/logs`
 
 **User Flow:**
+
 ```
 1. User enters workout preferences
 2. Click "Generate Plan"
@@ -62,12 +67,14 @@ Architecture breakdown for understanding the codebase.
 **Purpose:** AI diet plans and meal tracking.
 
 **Features:**
+
 - Generate AI diet plans
 - Log individual meals
 - Track daily macros
 - View meal history
 
 **API Calls:**
+
 - `POST /api/ai/generate` (plan_type: diet)
 - `POST /api/diet/log`
 - `GET /api/diet/logs/today`
@@ -79,6 +86,7 @@ Architecture breakdown for understanding the codebase.
 **Purpose:** View workout and meal history.
 
 **Features:**
+
 - Workout log history
 - Meal log history
 - Statistics and charts
@@ -91,12 +99,14 @@ Architecture breakdown for understanding the codebase.
 **Purpose:** AI fitness coach conversation.
 
 **Features:**
+
 - Real-time chat with AI
 - Streaming responses
 - Suggested questions
 - Context-aware responses
 
 **API Calls:**
+
 - `POST /api/chat/stream` (SSE)
 - `GET /api/chat/suggestions`
 
@@ -107,6 +117,7 @@ Architecture breakdown for understanding the codebase.
 **Purpose:** User settings and account.
 
 **Features:**
+
 - Display user info
 - Edit profile
 - View achievements
@@ -129,6 +140,7 @@ Architecture breakdown for understanding the codebase.
 | `is_ready()` | Check API key configured |
 
 **Configuration:**
+
 - `AI_PROVIDER`: openai or deepseek
 - `OPENAI_API_KEY`: API key
 - `OPENAI_MODEL`: Model name
@@ -140,18 +152,21 @@ Architecture breakdown for understanding the codebase.
 **Purpose:** Database operations via Supabase.
 
 **Workout Methods:**
+
 - `create_workout_log()`
 - `get_workout_logs()`
 - `delete_workout_log()`
 - `get_workout_stats()`
 
 **Diet Methods:**
+
 - `create_diet_log()`
 - `get_diet_logs()`
 - `delete_diet_log()`
 - `get_diet_stats()`
 
 **User Methods:**
+
 - `update_daily_log()`
 - `get_user_streaks()`
 
@@ -159,13 +174,13 @@ Architecture breakdown for understanding the codebase.
 
 ### 3. Routers
 
-| Router | Prefix | Purpose |
-|--------|--------|---------|
-| `health.py` | `/` | Health checks |
-| `ai.py` | `/api/ai` | AI generation |
-| `workout.py` | `/api/workout` | Workout CRUD |
-| `diet.py` | `/api/diet` | Diet CRUD |
-| `chat.py` | `/api/chat` | Chat AI |
+| Router       | Prefix         | Purpose       |
+| ------------ | -------------- | ------------- |
+| `health.py`  | `/`            | Health checks |
+| `ai.py`      | `/api/ai`      | AI generation |
+| `workout.py` | `/api/workout` | Workout CRUD  |
+| `diet.py`    | `/api/diet`    | Diet CRUD     |
+| `chat.py`    | `/api/chat`    | Chat AI       |
 
 ---
 
@@ -213,12 +228,14 @@ Architecture breakdown for understanding the codebase.
 ## Adding a New Feature
 
 ### Frontend
+
 1. Create component in `components/`
 2. Add API call in `services/apiClient.ts`
 3. Add route/tab in `App.tsx`
 4. Add tests in `tests/components/`
 
 ### Backend
+
 1. Create router in `backend/app/routers/`
 2. Add service methods if needed
 3. Register router in `main.py`

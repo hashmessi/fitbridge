@@ -24,7 +24,7 @@ repos:
       - id: isort
         name: isort (backend)
         files: ^fitbridge/backend/.*\.py$
-        args: ["--profile=black"]
+        args: ['--profile=black']
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.6.8
@@ -32,7 +32,7 @@ repos:
       - id: ruff
         name: ruff (backend)
         files: ^fitbridge/backend/.*\.py$
-        args: ["--fix"]
+        args: ['--fix']
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.10.0
@@ -40,7 +40,7 @@ repos:
       - id: mypy
         name: mypy (backend)
         files: ^fitbridge/backend/app/.*\.py$
-        additional_dependencies: ["pydantic", "pydantic-settings", "fastapi", "types-requests"]
+        additional_dependencies: ['pydantic', 'pydantic-settings', 'fastapi', 'types-requests']
 
   - repo: local
     hooks:
@@ -49,16 +49,16 @@ repos:
         entry: npx
         language: node
         files: \.(ts|tsx|js|jsx|json|css|scss|md|yml|yaml)$
-        args: ["prettier", "--write"]
+        args: ['prettier', '--write']
       - id: eslint
         name: eslint (frontend)
         entry: npx
         language: node
         files: ^(components|mobile|services|tests|frontend-ui|App\.tsx|index\.tsx|.*\.ts|.*\.tsx)$
-        args: ["eslint", "--max-warnings=0"]
+        args: ['eslint', '--max-warnings=0']
       - id: tsc
         name: typescript typecheck (frontend)
         entry: npx
         language: node
         files: \.(ts|tsx)$
-        args: ["tsc", "-p", "tsconfig.json", "--noEmit"]
+        args: ['tsc', '-p', 'tsconfig.json', '--noEmit']

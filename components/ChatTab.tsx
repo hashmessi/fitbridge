@@ -5,7 +5,11 @@ import { sendChatMessage } from '../services/apiClient';
 
 export const ChatTab: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([
-    { id: '1', role: 'model', text: "Hello! I'm your AI fitness coach. I can help with detailed physiology questions, form checks (describe them!), or complex diet science. What's on your mind?" }
+    {
+      id: '1',
+      role: 'model',
+      text: "Hello! I'm your AI fitness coach. I can help with detailed physiology questions, form checks (describe them!), or complex diet science. What's on your mind?",
+    },
   ]);
   const [input, setInput] = useState('');
   const [isThinking, setIsThinking] = useState(false);
@@ -25,36 +29,43 @@ export const ChatTab: React.FC = () => {
     const userMsg: ChatMessage = {
       id: Date.now().toString(),
       role: 'user',
-      text: input
+      text: input,
     };
 
-    setMessages(prev => [...prev, userMsg]);
+    setMessages((prev) => [...prev, userMsg]);
     setInput('');
     setIsThinking(true);
 
     try {
       // Prepare history for API
-      const history = messages.map(m => ({
+      const history = messages.map((m) => ({
         role: m.role === 'model' ? 'assistant' : 'user',
-        content: m.text
+        content: m.text,
       }));
 
       // Call backend API
       const response = await sendChatMessage(userMsg.text, history);
-      
+
       if (response.success && response.data) {
         const botMsg: ChatMessage = {
           id: (Date.now() + 1).toString(),
           role: 'model',
-          text: response.data.response
+          text: response.data.response,
         };
-        setMessages(prev => [...prev, botMsg]);
+        setMessages((prev) => [...prev, botMsg]);
       } else {
         throw new Error(response.error || 'Failed to get response');
       }
     } catch (error) {
-      console.error("Chat error:", error);
-      setMessages(prev => [...prev, { id: Date.now().toString(), role: 'model', text: "Sorry, I had trouble thinking about that. Please try again." }]);
+      console.error('Chat error:', error);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          role: 'model',
+          text: 'Sorry, I had trouble thinking about that. Please try again.',
+        },
+      ]);
     } finally {
       setIsThinking(false);
     }
@@ -71,8 +82,11 @@ export const ChatTab: React.FC = () => {
     <div className="flex flex-col h-screen bg-black pb-20">
       <div className="p-4 border-b border-white/5 bg-zinc-950 sticky top-0 z-10">
         <h1 className="text-xl font-bold text-white flex items-center gap-2">
-           <BrainCircuit className="text-pink-500" />
-           AI Coach <span className="text-[10px] bg-zinc-800 px-2 py-0.5 rounded text-zinc-400 font-normal border border-zinc-700">DeepSeek</span>
+          <BrainCircuit className="text-pink-500" />
+          AI Coach{' '}
+          <span className="text-[10px] bg-zinc-800 px-2 py-0.5 rounded text-zinc-400 font-normal border border-zinc-700">
+            DeepSeek
+          </span>
         </h1>
       </div>
 
@@ -89,27 +103,25 @@ export const ChatTab: React.FC = () => {
                   : 'bg-zinc-800 text-zinc-200 rounded-bl-none'
               }`}
             >
-              <div className="text-sm whitespace-pre-wrap leading-relaxed">
-                  {msg.text}
-              </div>
+              <div className="text-sm whitespace-pre-wrap leading-relaxed">{msg.text}</div>
               {msg.isThinking && !msg.text && (
-                  <div className="flex items-center gap-2 text-xs text-zinc-500 mt-0 animate-pulse">
-                      <BrainCircuit size={14} /> Thinking deeply...
-                  </div>
+                <div className="flex items-center gap-2 text-xs text-zinc-500 mt-0 animate-pulse">
+                  <BrainCircuit size={14} /> Thinking deeply...
+                </div>
               )}
             </div>
           </div>
         ))}
         {/* Separate pure thinking indicator if no message created yet or waiting for stream */}
         {isThinking && messages[messages.length - 1].role === 'user' && (
-             <div className="flex justify-start">
-                 <div className="bg-zinc-800 rounded-2xl p-4 rounded-bl-none">
-                    <div className="flex items-center gap-2 text-sm text-zinc-400">
-                        <Loader2 className="animate-spin w-4 h-4 text-pink-500" />
-                        Thinking...
-                    </div>
-                 </div>
-             </div>
+          <div className="flex justify-start">
+            <div className="bg-zinc-800 rounded-2xl p-4 rounded-bl-none">
+              <div className="flex items-center gap-2 text-sm text-zinc-400">
+                <Loader2 className="animate-spin w-4 h-4 text-pink-500" />
+                Thinking...
+              </div>
+            </div>
+          </div>
         )}
         <div ref={messagesEndRef} />
       </div>
@@ -132,7 +144,7 @@ export const ChatTab: React.FC = () => {
             aria-label="Send message"
             className="p-3 min-h-[48px] min-w-[48px] flex items-center justify-center bg-white rounded-xl text-black disabled:opacity-50 hover:bg-zinc-200 transition-colors"
           >
-            {isThinking ? <Loader2 size={18} className="animate-spin"/> : <Send size={18} />}
+            {isThinking ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
           </button>
         </div>
       </div>

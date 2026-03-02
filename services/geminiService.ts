@@ -1,6 +1,5 @@
-
-import { GoogleGenAI, Type } from "@google/genai";
-import { WorkoutPlan, DietPlan } from "../types";
+import { GoogleGenAI, Type } from '@google/genai';
+import { WorkoutPlan, DietPlan } from '../types';
 
 // Helper to get a fresh AI instance with the current API key
 const getAI = () => {
@@ -19,8 +18,9 @@ export const generateWorkout = async (userDescription: string): Promise<WorkoutP
       The plan MUST be real, executable physical exercises. 
       Return strictly structured JSON.`,
       config: {
-        systemInstruction: "You are an elite fitness coach. You create serious, effective, and practical workout splits. You never output nonsense or unrelated topics. Your output is always valid JSON matching the schema.",
-        responseMimeType: "application/json",
+        systemInstruction:
+          'You are an elite fitness coach. You create serious, effective, and practical workout splits. You never output nonsense or unrelated topics. Your output is always valid JSON matching the schema.',
+        responseMimeType: 'application/json',
         responseSchema: {
           type: Type.OBJECT,
           properties: {
@@ -42,18 +42,18 @@ export const generateWorkout = async (userDescription: string): Promise<WorkoutP
                         sets: { type: Type.NUMBER },
                         reps: { type: Type.STRING },
                         notes: { type: Type.STRING },
-                        description: { type: Type.STRING }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+                        description: { type: Type.STRING },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
-    
+
     if (response.text) {
       try {
         const plan = JSON.parse(response.text);
@@ -62,20 +62,20 @@ export const generateWorkout = async (userDescription: string): Promise<WorkoutP
           if (!Array.isArray(plan.schedule)) {
             // Fallback for older schema or hallucination
             if (Array.isArray(plan.exercises)) {
-                plan.schedule = [{ dayTitle: 'Day 1', exercises: plan.exercises }];
+              plan.schedule = [{ dayTitle: 'Day 1', exercises: plan.exercises }];
             } else {
-                plan.schedule = [];
+              plan.schedule = [];
             }
           }
           return plan as WorkoutPlan;
         }
       } catch (e) {
-        console.error("JSON parse error", e);
+        console.error('JSON parse error', e);
       }
     }
     return null;
   } catch (error) {
-    console.error("Error generating workout:", error);
+    console.error('Error generating workout:', error);
     return null;
   }
 };
@@ -88,8 +88,9 @@ export const generateDiet = async (userDescription: string): Promise<DietPlan | 
       model,
       contents: `Generate a daily diet plan for: ${userDescription}. Return JSON.`,
       config: {
-        systemInstruction: "You are a professional nutritionist. Create balanced, healthy meal plans with accurate macro calculations.",
-        responseMimeType: "application/json",
+        systemInstruction:
+          'You are a professional nutritionist. Create balanced, healthy meal plans with accurate macro calculations.',
+        responseMimeType: 'application/json',
         responseSchema: {
           type: Type.OBJECT,
           properties: {
@@ -99,8 +100,8 @@ export const generateDiet = async (userDescription: string): Promise<DietPlan | 
               properties: {
                 protein: { type: Type.NUMBER },
                 carbs: { type: Type.NUMBER },
-                fats: { type: Type.NUMBER }
-              }
+                fats: { type: Type.NUMBER },
+              },
             },
             meals: {
               type: Type.OBJECT,
@@ -113,36 +114,36 @@ export const generateDiet = async (userDescription: string): Promise<DietPlan | 
                     protein: { type: Type.NUMBER },
                     carbs: { type: Type.NUMBER },
                     fats: { type: Type.NUMBER },
-                    description: { type: Type.STRING }
-                  }
+                    description: { type: Type.STRING },
+                  },
                 },
                 lunch: {
-                   type: Type.OBJECT,
-                   properties: {
+                  type: Type.OBJECT,
+                  properties: {
                     name: { type: Type.STRING },
                     calories: { type: Type.NUMBER },
                     protein: { type: Type.NUMBER },
                     carbs: { type: Type.NUMBER },
                     fats: { type: Type.NUMBER },
-                    description: { type: Type.STRING }
-                  }
+                    description: { type: Type.STRING },
+                  },
                 },
                 dinner: {
-                   type: Type.OBJECT,
-                   properties: {
+                  type: Type.OBJECT,
+                  properties: {
                     name: { type: Type.STRING },
                     calories: { type: Type.NUMBER },
                     protein: { type: Type.NUMBER },
                     carbs: { type: Type.NUMBER },
                     fats: { type: Type.NUMBER },
-                    description: { type: Type.STRING }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+                    description: { type: Type.STRING },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
 
     if (response.text) {
@@ -150,16 +151,19 @@ export const generateDiet = async (userDescription: string): Promise<DietPlan | 
     }
     return null;
   } catch (error) {
-    console.error("Error generating diet:", error);
+    console.error('Error generating diet:', error);
     return null;
   }
 };
 
-export const chatWithThinking = async (history: {role: string, parts: {text: string}[]}[], newMessage: string) => {
+export const chatWithThinking = async (
+  history: { role: string; parts: { text: string }[] }[],
+  newMessage: string
+) => {
   const ai = getAI();
   // We use a stable Gemini model for reliable chat
-  const model = 'gemini-2.0-flash'; 
-  
+  const model = 'gemini-2.0-flash';
+
   const chat = ai.chats.create({
     model,
     history: history,
@@ -168,7 +172,7 @@ export const chatWithThinking = async (history: {role: string, parts: {text: str
         thinkingBudget: 32768, // Max for Gemini 3 Pro
       },
       // Do NOT set maxOutputTokens when using thinking budget as per instructions
-    }
+    },
   });
 
   const result = await chat.sendMessageStream({ message: newMessage });

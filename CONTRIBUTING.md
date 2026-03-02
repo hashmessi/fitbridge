@@ -4,11 +4,11 @@ Thank you for your interest in contributing! This guide will help you get starte
 
 ## Prerequisites
 
-| Tool | Version | Check Command |
-|------|---------|---------------|
-| Node.js | 20+ | `node --version` |
-| Python | 3.10+ | `python --version` |
-| Git | Latest | `git --version` |
+| Tool    | Version | Check Command      |
+| ------- | ------- | ------------------ |
+| Node.js | 20+     | `node --version`   |
+| Python  | 3.10+   | `python --version` |
+| Git     | Latest  | `git --version`    |
 
 ---
 
@@ -61,6 +61,7 @@ npm run dev
 ## Running Tests
 
 ### Frontend (Vitest)
+
 ```bash
 npm run test        # Watch mode
 npm run test:run    # Single run
@@ -68,6 +69,7 @@ npm run test:coverage
 ```
 
 ### Backend (pytest)
+
 ```bash
 cd backend
 python -m pytest tests/ -v
@@ -80,16 +82,19 @@ python -m pytest tests/ -v
 ## Code Style
 
 ### TypeScript/React
+
 - Use functional components with hooks
 - Name components in PascalCase: `WorkoutCard.tsx`
 - Name utilities in camelCase: `formatDate.ts`
 
 ### Python
+
 - Follow PEP 8
 - Use type hints
 - Async functions for I/O operations
 
 ### Commit Messages
+
 ```
 type(scope): brief description
 
@@ -105,6 +110,7 @@ docs: update contributing guide
 ## Submitting Changes
 
 ### Branch Naming
+
 ```
 feature/short-description
 bugfix/issue-number-description
@@ -129,17 +135,17 @@ docs/topic
 
 ## Issue Labels
 
-| Label | Meaning |
-|-------|---------|
-| `good first issue` | Ideal for new contributors |
-| `priority: critical` | Needs immediate attention |
-| `priority: high` | Important for next release |
-| `priority: medium` | Should be done soon |
-| `priority: low` | Nice to have |
-| `type: bug` | Something isn't working |
-| `type: feature` | New functionality |
-| `type: test` | Test-related |
-| `type: docs` | Documentation |
+| Label                | Meaning                    |
+| -------------------- | -------------------------- |
+| `good first issue`   | Ideal for new contributors |
+| `priority: critical` | Needs immediate attention  |
+| `priority: high`     | Important for next release |
+| `priority: medium`   | Should be done soon        |
+| `priority: low`      | Nice to have               |
+| `type: bug`          | Something isn't working    |
+| `type: feature`      | New functionality          |
+| `type: test`         | Test-related               |
+| `type: docs`         | Documentation              |
 
 ---
 

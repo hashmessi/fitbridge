@@ -28,7 +28,7 @@ describe('ErrorBoundary Component', () => {
           <div>Test content</div>
         </ErrorBoundary>
       );
-      
+
       expect(screen.getByText('Test content')).toBeInTheDocument();
     });
 
@@ -39,7 +39,7 @@ describe('ErrorBoundary Component', () => {
           <div>Child 2</div>
         </ErrorBoundary>
       );
-      
+
       expect(screen.getByText('Child 1')).toBeInTheDocument();
       expect(screen.getByText('Child 2')).toBeInTheDocument();
     });
@@ -52,7 +52,7 @@ describe('ErrorBoundary Component', () => {
           <ThrowError shouldThrow={true} />
         </ErrorBoundary>
       );
-      
+
       expect(screen.getByText('Something went wrong')).toBeInTheDocument();
     });
 
@@ -62,7 +62,7 @@ describe('ErrorBoundary Component', () => {
           <ThrowError shouldThrow={true} />
         </ErrorBoundary>
       );
-      
+
       expect(screen.getByText('Refresh App')).toBeInTheDocument();
     });
 
@@ -72,7 +72,7 @@ describe('ErrorBoundary Component', () => {
           <ThrowError shouldThrow={true} />
         </ErrorBoundary>
       );
-      
+
       expect(screen.getByText(/unexpected error/i)).toBeInTheDocument();
     });
   });
@@ -91,10 +91,10 @@ describe('ErrorBoundary Component', () => {
           <ThrowError shouldThrow={true} />
         </ErrorBoundary>
       );
-      
+
       const refreshButton = screen.getByText('Refresh App');
       fireEvent.click(refreshButton);
-      
+
       expect(reloadMock).toHaveBeenCalled();
     });
   });

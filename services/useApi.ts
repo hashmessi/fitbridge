@@ -189,27 +189,30 @@ export function useChatApi() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const sendMessage = useCallback(async (
-    message: string,
-    history: { role: string; content: string }[] = [],
-    userContext?: any
-  ) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const result = await api.sendChatMessage(message, history, userContext);
-      if (!result.success) {
-        setError(result.error || 'Failed to send message');
+  const sendMessage = useCallback(
+    async (
+      message: string,
+      history: { role: string; content: string }[] = [],
+      userContext?: any
+    ) => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const result = await api.sendChatMessage(message, history, userContext);
+        if (!result.success) {
+          setError(result.error || 'Failed to send message');
+          return null;
+        }
+        return result.data?.response;
+      } catch (err: any) {
+        setError(err.message || 'Failed to send message');
         return null;
+      } finally {
+        setIsLoading(false);
       }
-      return result.data?.response;
-    } catch (err: any) {
-      setError(err.message || 'Failed to send message');
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+    },
+    []
+  );
 
   const streamMessage = useCallback(async function* (
     message: string,

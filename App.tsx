@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Navigation } from './components/Navigation';
 import { Dashboard } from './components/Dashboard';
@@ -21,7 +20,7 @@ const DEFAULT_USER: UserProfile = {
   level: 'Intermediate',
   streak: 12,
   xp: 1250,
-  levelTitle: 'Fitness Enthusiast'
+  levelTitle: 'Fitness Enthusiast',
 };
 
 // App states
@@ -39,21 +38,16 @@ const App: React.FC = () => {
 
   const checkAuthState = async () => {
     try {
-      const { 
-        getSession, 
-        isSupabaseConfigured, 
-        getUserProfile, 
-        getTotalXP,
-        getUserStreaks 
-      } = await import('./services/supabaseClient');
-      
+      const { getSession, isSupabaseConfigured, getUserProfile, getTotalXP, getUserStreaks } =
+        await import('./services/supabaseClient');
+
       if (!isSupabaseConfigured()) {
         // Supabase not configured - check local storage for demo mode
         const savedUser = localStorage.getItem('fitbridge_demo_user');
         if (savedUser) {
           const user = JSON.parse(savedUser);
           setCurrentUser(user);
-          
+
           const savedProfile = localStorage.getItem('fitbridge_user_profile');
           if (savedProfile) {
             const profile = JSON.parse(savedProfile);
@@ -77,25 +71,28 @@ const App: React.FC = () => {
 
       // Try to get existing session from Supabase
       const session = await getSession();
-      
+
       if (session?.user) {
         setCurrentUser(session.user);
-        
+
         try {
           const profile = await getUserProfile(session.user.id);
-          
+
           if (profile && profile.goal) {
             // Fetch real streak and XP from database
             const { xp, level, title } = await getTotalXP(session.user.id);
             const streaks = await getUserStreaks(session.user.id);
-            const workoutStreak = streaks.find(s => s.streak_type === 'workout');
-            
+            const workoutStreak = streaks.find((s) => s.streak_type === 'workout');
+
             setUserProfile({
               name: profile.name || 'User',
               weight: profile.weight || 70,
               height: profile.height || 170,
               goal: profile.goal,
-              level: (profile.fitness_level || 'Intermediate') as 'Beginner' | 'Intermediate' | 'Advanced',
+              level: (profile.fitness_level || 'Intermediate') as
+                | 'Beginner'
+                | 'Intermediate'
+                | 'Advanced',
               streak: workoutStreak?.current_streak || 0,
               xp: xp,
               levelTitle: title,
@@ -119,52 +116,55 @@ const App: React.FC = () => {
 
   const getLevelTitle = (level: string): string => {
     switch (level) {
-      case 'Beginner': return 'Rising Star';
-      case 'Intermediate': return 'Fitness Enthusiast';
-      case 'Advanced': return 'Fitness Pro';
-      default: return 'Fitness Explorer';
+      case 'Beginner':
+        return 'Rising Star';
+      case 'Intermediate':
+        return 'Fitness Enthusiast';
+      case 'Advanced':
+        return 'Fitness Pro';
+      default:
+        return 'Fitness Explorer';
     }
   };
 
   const handleAuthSuccess = async (user: any) => {
     setCurrentUser(user);
-    
+
     // Save to localStorage for demo mode
     localStorage.setItem('fitbridge_demo_user', JSON.stringify(user));
     localStorage.setItem('fitbridge_token', user.id);
-    
+
     // Check Supabase first for returning user profile
     try {
-      const { 
-        getUserProfile, 
-        isSupabaseConfigured, 
-        getTotalXP, 
-        getUserStreaks 
-      } = await import('./services/supabaseClient');
-      
+      const { getUserProfile, isSupabaseConfigured, getTotalXP, getUserStreaks } =
+        await import('./services/supabaseClient');
+
       if (isSupabaseConfigured()) {
         const profile = await getUserProfile(user.id);
-        
+
         if (profile && profile.goal) {
           // Returning user — load from Supabase
           const { xp, title } = await getTotalXP(user.id);
           const streaks = await getUserStreaks(user.id);
           const workoutStreak = streaks.find((s: any) => s.streak_type === 'workout');
-          
+
           setUserProfile({
             name: profile.name || 'User',
             weight: profile.weight || 70,
             height: profile.height || 170,
             goal: profile.goal,
-            level: (profile.fitness_level || 'Intermediate') as 'Beginner' | 'Intermediate' | 'Advanced',
+            level: (profile.fitness_level || 'Intermediate') as
+              | 'Beginner'
+              | 'Intermediate'
+              | 'Advanced',
             streak: workoutStreak?.current_streak || 0,
             xp: xp,
             levelTitle: title,
           });
-          
+
           // Cache in localStorage too
           localStorage.setItem('fitbridge_user_profile', JSON.stringify(profile));
-          
+
           setAppState('app');
           return;
         }
@@ -172,7 +172,7 @@ const App: React.FC = () => {
     } catch (err) {
       console.error('Failed to fetch profile from Supabase:', err);
     }
-    
+
     // Fallback: check localStorage for demo mode
     const savedProfile = localStorage.getItem('fitbridge_user_profile');
     if (savedProfile) {
@@ -199,31 +199,31 @@ const App: React.FC = () => {
       xp: 0,
       levelTitle: getLevelTitle(profile.fitness_level || 'Intermediate'),
     };
-    
+
     setUserProfile(fullProfile);
-    
+
     // Save to localStorage
     localStorage.setItem('fitbridge_user_profile', JSON.stringify(profile));
-    
+
     setAppState('app');
   };
 
   const handleLogout = async () => {
     try {
       const { signOut, isSupabaseConfigured } = await import('./services/supabaseClient');
-      
+
       if (isSupabaseConfigured()) {
         await signOut();
       }
     } catch (err) {
       console.error('Logout error:', err);
     }
-    
+
     // Clear local storage
     localStorage.removeItem('fitbridge_demo_user');
     localStorage.removeItem('fitbridge_user_profile');
     localStorage.removeItem('fitbridge_token');
-    
+
     setCurrentUser(null);
     setUserProfile(DEFAULT_USER);
     setAppState('auth');
@@ -268,9 +268,9 @@ const App: React.FC = () => {
   // Onboarding screen
   if (appState === 'onboarding') {
     return (
-      <OnboardingScreen 
-        userId={currentUser?.id || 'demo-user'} 
-        onComplete={handleOnboardingComplete} 
+      <OnboardingScreen
+        userId={currentUser?.id || 'demo-user'}
+        onComplete={handleOnboardingComplete}
       />
     );
   }
@@ -281,11 +281,11 @@ const App: React.FC = () => {
       {/* Global gradients for atmosphere */}
       <div className="fixed top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-900/10 blur-[120px] pointer-events-none z-0"></div>
       <div className="fixed bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-primary/5 blur-[120px] pointer-events-none z-0"></div>
-      
+
       <main className="relative z-10 max-w-md mx-auto min-h-screen border-x border-zinc-900 bg-black shadow-2xl overflow-hidden">
         {renderTab()}
       </main>
-      
+
       <Navigation currentTab={currentTab} onTabChange={setCurrentTab} />
     </div>
   );

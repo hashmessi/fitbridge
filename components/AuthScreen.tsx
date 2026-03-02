@@ -4,18 +4,18 @@
  */
 
 import React, { useState } from 'react';
-import { 
-  Mail, 
-  Lock, 
-  User, 
-  Eye, 
-  EyeOff, 
-  ArrowRight, 
+import {
+  Mail,
+  Lock,
+  User,
+  Eye,
+  EyeOff,
+  ArrowRight,
   Loader2,
   Dumbbell,
   Flame,
   Target,
-  Chrome
+  Chrome,
 } from 'lucide-react';
 
 interface AuthScreenProps {
@@ -28,7 +28,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess, onSkip: _
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Form state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -42,13 +42,13 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess, onSkip: _
     try {
       // Import Supabase client dynamically to handle cases where it's not configured
       const { signIn, signUp, isSupabaseConfigured } = await import('../services/supabaseClient');
-      
+
       if (!isSupabaseConfigured()) {
         // Demo mode - skip auth
         onAuthSuccess({
           id: '00000000-0000-0000-0000-000000000001',
           email: email || 'demo@fitbridge.app',
-          name: name || 'Demo User'
+          name: name || 'Demo User',
         });
         return;
       }
@@ -81,12 +81,12 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess, onSkip: _
 
     try {
       const { signInWithGoogle, isSupabaseConfigured } = await import('../services/supabaseClient');
-      
+
       if (!isSupabaseConfigured()) {
         onAuthSuccess({
           id: '00000000-0000-0000-0000-000000000001',
           email: 'demo@fitbridge.app',
-          name: 'Demo User'
+          name: 'Demo User',
         });
         return;
       }
@@ -103,7 +103,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess, onSkip: _
     onAuthSuccess({
       id: '00000000-0000-0000-0000-000000000001',
       email: 'demo@fitbridge.app',
-      name: 'Demo User'
+      name: 'Demo User',
     });
   };
 
@@ -112,12 +112,14 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess, onSkip: _
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-30%] left-[-20%] w-[80%] h-[80%] rounded-full bg-gradient-to-br from-indigo-900/30 to-purple-900/20 blur-[100px] animate-pulse" />
-        <div className="absolute bottom-[-30%] right-[-20%] w-[80%] h-[80%] rounded-full bg-gradient-to-br from-primary/20 to-emerald-500/10 blur-[100px] animate-pulse" style={{ animationDelay: '1s' }} />
+        <div
+          className="absolute bottom-[-30%] right-[-20%] w-[80%] h-[80%] rounded-full bg-gradient-to-br from-primary/20 to-emerald-500/10 blur-[100px] animate-pulse"
+          style={{ animationDelay: '1s' }}
+        />
       </div>
 
       {/* Content */}
       <div className="relative z-10 flex-1 flex flex-col max-w-md mx-auto w-full px-6 py-8">
-        
         {/* Logo & Welcome */}
         <div className="text-center mb-8 mt-8">
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-primary via-emerald-400 to-teal-500 shadow-2xl shadow-primary/30 mb-6">
@@ -143,15 +145,12 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess, onSkip: _
 
         {/* Auth Card */}
         <div className="bg-zinc-900/50 backdrop-blur-xl rounded-2xl border border-white/5 p-6 shadow-2xl">
-          
           {/* Tab Switcher */}
           <div className="flex bg-zinc-800/50 rounded-xl p-1 mb-6">
             <button
               onClick={() => setIsLogin(true)}
               className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 ${
-                isLogin 
-                  ? 'bg-white text-black shadow-lg' 
-                  : 'text-zinc-400 hover:text-white'
+                isLogin ? 'bg-white text-black shadow-lg' : 'text-zinc-400 hover:text-white'
               }`}
             >
               Sign In
@@ -159,9 +158,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess, onSkip: _
             <button
               onClick={() => setIsLogin(false)}
               className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 ${
-                !isLogin 
-                  ? 'bg-white text-black shadow-lg' 
-                  : 'text-zinc-400 hover:text-white'
+                !isLogin ? 'bg-white text-black shadow-lg' : 'text-zinc-400 hover:text-white'
               }`}
             >
               Sign Up
@@ -177,7 +174,6 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess, onSkip: _
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            
             {/* Name field (signup only) */}
             {!isLogin && (
               <div className="relative">
@@ -278,9 +274,19 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthSuccess, onSkip: _
         {/* Terms */}
         <p className="mt-6 text-center text-xs text-zinc-400">
           By continuing, you agree to our{' '}
-          <a href="#" className="text-zinc-300 hover:text-white underline decoration-zinc-600 underline-offset-2">Terms of Service</a>
-          {' '}and{' '}
-          <a href="#" className="text-zinc-300 hover:text-white underline decoration-zinc-600 underline-offset-2">Privacy Policy</a>
+          <a
+            href="#"
+            className="text-zinc-300 hover:text-white underline decoration-zinc-600 underline-offset-2"
+          >
+            Terms of Service
+          </a>{' '}
+          and{' '}
+          <a
+            href="#"
+            className="text-zinc-300 hover:text-white underline decoration-zinc-600 underline-offset-2"
+          >
+            Privacy Policy
+          </a>
         </p>
       </div>
     </div>

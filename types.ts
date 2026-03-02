@@ -1,13 +1,12 @@
-
 export interface UserProfile {
   name: string;
   weight: number;
   height: number;
   goal: string;
-  level: 'Beginner' | 'Intermediate' | 'Advanced';
-  streak: number;
-  xp: number;
-  levelTitle: string;
+  fitness_level: 'beginner' | 'intermediate' | 'advanced';
+  streak?: number;
+  xp?: number;
+  levelTitle?: string;
 }
 
 export interface Exercise {

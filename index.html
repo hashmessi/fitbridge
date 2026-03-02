@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
@@ -10,27 +10,27 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
-        darkMode: "class",
+        darkMode: 'class',
         theme: {
           extend: {
             colors: {
-              primary: "#d9f99d", // lime-200
-              secondary: "#2dd4bf", // teal-400
+              primary: '#d9f99d', // lime-200
+              secondary: '#2dd4bf', // teal-400
               dark: {
-                950: "#09090b", // zinc-950
-                900: "#18181b", // zinc-900
-                800: "#27272a", // zinc-800
+                950: '#09090b', // zinc-950
+                900: '#18181b', // zinc-900
+                800: '#27272a', // zinc-800
               },
             },
             fontFamily: {
               sans: [
-                "-apple-system",
-                "BlinkMacSystemFont",
-                "Segoe UI",
-                "Roboto",
-                "Helvetica",
-                "Arial",
-                "sans-serif",
+                '-apple-system',
+                'BlinkMacSystemFont',
+                'Segoe UI',
+                'Roboto',
+                'Helvetica',
+                'Arial',
+                'sans-serif',
               ],
             },
           },
@@ -47,7 +47,7 @@
         -ms-overflow-style: none; /* IE and Edge */
         scrollbar-width: none; /* Firefox */
       }
-      
+
       /* Design Tokens */
       :root {
         --color-bg: #0b0b0d;
@@ -66,11 +66,17 @@
       .pt-safe {
         padding-top: env(safe-area-inset-top, 0px);
       }
-      
+
       /* Animations */
       @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
       .animate-fade-in {
         animation: fadeIn 0.4s ease-out forwards;

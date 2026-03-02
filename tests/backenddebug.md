@@ -19,6 +19,7 @@ Convert FitBridge backend into:
 In main.py:
 
 Current:
+
 ```python
 allow_origins=["*"]
 ```
@@ -50,6 +51,7 @@ This uses config.py safe origins list.
 In main.py bottom:
 
 Current:
+
 ```python
 uvicorn.run(
     "main:app",
@@ -151,6 +153,7 @@ async def create_log(
 ```
 
 Apply same to:
+
 - diet router
 - chat router
 - any protected endpoint
@@ -281,7 +284,7 @@ In production environment variables.
 ☑ No default secrets  
 ☑ Uvicorn fixed  
 ☑ All writes include user_id  
-☑ RLS enabled in Supabase  
+☑ RLS enabled in Supabase
 
 ---
 

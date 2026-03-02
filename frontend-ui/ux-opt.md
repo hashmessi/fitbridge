@@ -12,11 +12,11 @@ FitBridge is an AI‑powered fitness app that delivers personalized workout and 
 
 ## 2. Primary goals for this UI/UX pass
 
-* Fix layout inconsistencies and truncation on small/mobile screens.
-* Improve perceived performance (streaming & progressive reveals).
-* Standardize visual system (typography, spacing, tokens) to a minimal iOS look.
-* Preserve all backend API contracts (no schema changes) and maintain runtime behavior.
-* Increase usability and accessibility (touch targets, contrast, readable fonts).
+- Fix layout inconsistencies and truncation on small/mobile screens.
+- Improve perceived performance (streaming & progressive reveals).
+- Standardize visual system (typography, spacing, tokens) to a minimal iOS look.
+- Preserve all backend API contracts (no schema changes) and maintain runtime behavior.
+- Increase usability and accessibility (touch targets, contrast, readable fonts).
 
 ---
 
@@ -24,27 +24,27 @@ FitBridge is an AI‑powered fitness app that delivers personalized workout and 
 
 **Visual / Layout**
 
-* Top-level dashboard shows `Daily Load` ring + small cards (Workout / Calories / Steps). Some card content truncates (long workout title) and text density is high.
-* Buttons on dashboard (AI Coach, Gen Workout, Add Meal) are small compared to recommended touch targets.
-* Bottom navigation sits very close to the OS gesture area; on some phones it overlaps or feels tight.
-* AI Workout screen: goal chips, duration slider, difficulty toggles look fine but spacing between sections is inconsistent on narrow screens.
-* Activity screen charts have cramped labels and the consistency graph uses very small X-axis labels.
+- Top-level dashboard shows `Daily Load` ring + small cards (Workout / Calories / Steps). Some card content truncates (long workout title) and text density is high.
+- Buttons on dashboard (AI Coach, Gen Workout, Add Meal) are small compared to recommended touch targets.
+- Bottom navigation sits very close to the OS gesture area; on some phones it overlaps or feels tight.
+- AI Workout screen: goal chips, duration slider, difficulty toggles look fine but spacing between sections is inconsistent on narrow screens.
+- Activity screen charts have cramped labels and the consistency graph uses very small X-axis labels.
 
 **Interaction / Behaviour**
 
-* Single “Designing Plan...” modal/spinner — user has no partial feedback while plan is generated.
-* No visible "why" or edit affordance in generated plan card—hard to inspect or modify suggestions.
+- Single “Designing Plan...” modal/spinner — user has no partial feedback while plan is generated.
+- No visible "why" or edit affordance in generated plan card—hard to inspect or modify suggestions.
 
 **Accessibility / Usability**
 
-* Contrast for muted labels (e.g., small light gray on dark background) is borderline for smaller text.
-* Icons and chips are visually small — some are under 44–48px touch recommendation.
-* Missing semantics for key actions (e.g., `Gen Workout` button should have aria-label / accessibilityLabel).
+- Contrast for muted labels (e.g., small light gray on dark background) is borderline for smaller text.
+- Icons and chips are visually small — some are under 44–48px touch recommendation.
+- Missing semantics for key actions (e.g., `Gen Workout` button should have aria-label / accessibilityLabel).
 
 **Consistency Bugs**
 
-* Some cards use soft rounded corners and deep shadows; others are flatter; inconsistent radius values.
-* Inconsistent font weights and sizes across headings and card labels.
+- Some cards use soft rounded corners and deep shadows; others are flatter; inconsistent radius values.
+- Inconsistent font weights and sizes across headings and card labels.
 
 ---
 
@@ -55,62 +55,49 @@ FitBridge is an AI‑powered fitness app that delivers personalized workout and 
 ### Immediate fixes (hotfixes — 48–72 hours)
 
 1. **Safe‑area & bottom nav padding**
-
-   * Add CSS / RN safe area wrappers using `env(safe-area-inset-bottom)` or `SafeAreaView`.
-   * Increase bottom nav height + vertical padding so nav items are >56px tall and above the gesture bar.
+   - Add CSS / RN safe area wrappers using `env(safe-area-inset-bottom)` or `SafeAreaView`.
+   - Increase bottom nav height + vertical padding so nav items are >56px tall and above the gesture bar.
 
 2. **Touch target sizing**
-
-   * Ensure primary CTA buttons are >=48×48 dp. Increase `AI Coach`, `Gen Workout`, `Add Meal` size and padding.
+   - Ensure primary CTA buttons are >=48×48 dp. Increase `AI Coach`, `Gen Workout`, `Add Meal` size and padding.
 
 3. **Line‑wrap & truncation rules**
-
-   * For workout title cards: allow 2-line wrap with ellipsis at end; increase card width or use adaptive font scaling using `clamp()`.
+   - For workout title cards: allow 2-line wrap with ellipsis at end; increase card width or use adaptive font scaling using `clamp()`.
 
 4. **Fix card spacing & consistent radius**
-
-   * Standardize card corner radius to `12px` (mobile) and `16px` (tablet). Use a single token: `--radius-card`.
+   - Standardize card corner radius to `12px` (mobile) and `16px` (tablet). Use a single token: `--radius-card`.
 
 ### Short term (1–3 weeks)
 
 1. **Design tokens & style system**
-
-   * Create tokens: color (primary, accent, bg, card), spacing (xs-xxl), typography scale, radius, elevation. Use them across components.
+   - Create tokens: color (primary, accent, bg, card), spacing (xs-xxl), typography scale, radius, elevation. Use them across components.
 
 2. **Partial streaming UI for plan generation**
-
-   * Implement SSE/WebSocket or optimistic UI to stream plan sections (warm‑up, main set, cool down) as they become ready.
-   * Show skeleton cards for sections not ready.
+   - Implement SSE/WebSocket or optimistic UI to stream plan sections (warm‑up, main set, cool down) as they become ready.
+   - Show skeleton cards for sections not ready.
 
 3. **Plan item affordances**
-
-   * Each exercise row should have: name, sets/reps, duration, equipment icon, `Why?` button (show LLM rationale), `Swap` button (replace exercise), and `Mark done` quick action.
+   - Each exercise row should have: name, sets/reps, duration, equipment icon, `Why?` button (show LLM rationale), `Swap` button (replace exercise), and `Mark done` quick action.
 
 4. **Form & control polish**
-
-   * Replace slider numeric inconsistency with a `Duration` pill + accessible stepper (increment/decrement) and visually large thumb.
+   - Replace slider numeric inconsistency with a `Duration` pill + accessible stepper (increment/decrement) and visually large thumb.
 
 5. **Charts & microcopy**
-
-   * Increase chart axis font sizes, simplify X axis labels to weekly ticks, add alt text for charts for screen readers.
+   - Increase chart axis font sizes, simplify X axis labels to weekly ticks, add alt text for charts for screen readers.
 
 ### Mid-term (1–3 months)
 
 1. **iOS minimal theme option**
-
-   * SF Pro text sizes, translucent tab bar with blur, large titles on top of screens (iOS style), haptic feedback for main actions.
+   - SF Pro text sizes, translucent tab bar with blur, large titles on top of screens (iOS style), haptic feedback for main actions.
 
 2. **Design system component library**
-
-   * Implement a small library (React Native + web) of Button, Card, Chip, Modal, Skeleton, Chart wrapper, Icon set, segmented control.
+   - Implement a small library (React Native + web) of Button, Card, Chip, Modal, Skeleton, Chart wrapper, Icon set, segmented control.
 
 3. **Responsive layout rules**
-
-   * Use fluid typography (`clamp()`), breakpoints: mobile <420px, small tablet 420–768px, tablet >768px.
+   - Use fluid typography (`clamp()`), breakpoints: mobile <420px, small tablet 420–768px, tablet >768px.
 
 4. **A/B experiments**
-
-   * Roll out streaming vs single generation in progressive rollout; measure plan acceptance and time-to-first-interaction.
+   - Roll out streaming vs single generation in progressive rollout; measure plan acceptance and time-to-first-interaction.
 
 ---
 
@@ -118,22 +105,22 @@ FitBridge is an AI‑powered fitness app that delivers personalized workout and 
 
 **Stack assumptions**
 
-* Frontend: React + React Native Web or React Native (Expo / bare), styled-components / Tailwind-like or CSS Modules.
-* State: Redux / Zustand / React Query for server state.
+- Frontend: React + React Native Web or React Native (Expo / bare), styled-components / Tailwind-like or CSS Modules.
+- State: Redux / Zustand / React Query for server state.
 
 **Component & CSS guidance**
 
-* Use CSS variables for tokens and export to RN via a small token converter.
-* Use `SafeAreaView` on iOS/Android, prefers `env(safe-area-inset-*)` on web mobile.
-* Use `pointer` hit slop for small icons (add `hitSlop` in RN or `padding` in web).
+- Use CSS variables for tokens and export to RN via a small token converter.
+- Use `SafeAreaView` on iOS/Android, prefers `env(safe-area-inset-*)` on web mobile.
+- Use `pointer` hit slop for small icons (add `hitSlop` in RN or `padding` in web).
 
 **Progressive enhancement for plan generation**
 
-* Keep existing API call `/plan/workout` contract intact; backend returns structured `plan_json`. Add support for `plan_section` stream in inference adapter only: if server supports SSE, render streamed `plan_section` items (but **do not** change the payload schema for existing endpoints). Use feature flag `plan_streaming_enabled`.
+- Keep existing API call `/plan/workout` contract intact; backend returns structured `plan_json`. Add support for `plan_section` stream in inference adapter only: if server supports SSE, render streamed `plan_section` items (but **do not** change the payload schema for existing endpoints). Use feature flag `plan_streaming_enabled`.
 
 **Versioning & feature flags**
 
-* Add front-end config toggle `FEATURE_PLAN_STREAMING` and `FEATURE_IOS_THEME`. Default false. This prevents breaking users when backend doesn't support streaming.
+- Add front-end config toggle `FEATURE_PLAN_STREAMING` and `FEATURE_IOS_THEME`. Default false. This prevents breaking users when backend doesn't support streaming.
 
 ---
 
@@ -141,18 +128,18 @@ FitBridge is an AI‑powered fitness app that delivers personalized workout and 
 
 **Preserve all existing endpoints**. Example contract list (do not change):
 
-* `POST /auth/signup` — {email, password, ...}
-* `POST /auth/login`
-* `GET /profile/{user_id}`
-* `POST /plan/workout` — request includes user_id + constraints; response returns `{ plan_id, plan_json, estimated_duration }`.
-* `POST /activity/log` — logs completion and triggers adaptive recalculation.
-* `POST /inference/generate` — internal inference; only Inference Service should call external LLMs.
-* `POST /analytics/event` — track events
+- `POST /auth/signup` — {email, password, ...}
+- `POST /auth/login`
+- `GET /profile/{user_id}`
+- `POST /plan/workout` — request includes user_id + constraints; response returns `{ plan_id, plan_json, estimated_duration }`.
+- `POST /activity/log` — logs completion and triggers adaptive recalculation.
+- `POST /inference/generate` — internal inference; only Inference Service should call external LLMs.
+- `POST /analytics/event` — track events
 
 **Frontend safety patterns**
 
-* Do not change request shapes. If new fields are needed from UI (e.g., `ui_theme_preference`) send them as optional metadata under `metadata` object so backend ignores unknown fields.
-* All changes must be backward compatible. If new UI relies on backend flags, default behavior should work without them.
+- Do not change request shapes. If new fields are needed from UI (e.g., `ui_theme_preference`) send them as optional metadata under `metadata` object so backend ignores unknown fields.
+- All changes must be backward compatible. If new UI relies on backend flags, default behavior should work without them.
 
 ---
 
@@ -160,17 +147,17 @@ FitBridge is an AI‑powered fitness app that delivers personalized workout and 
 
 **Pre‑merge checklist**
 
-* [ ] Storybook components or visual snapshot tests for changed components
-* [ ] Visual regression tests (Chromatic or Percy) for home/workout/activity screens
-* [ ] Accessibility audit: Axe or Lighthouse checks passed (>90)
-* [ ] Unit tests for layout helpers (safe-area, clamp) and touch targets
-* [ ] E2E smoke test for plan generation happy path + streaming fallback
+- [ ] Storybook components or visual snapshot tests for changed components
+- [ ] Visual regression tests (Chromatic or Percy) for home/workout/activity screens
+- [ ] Accessibility audit: Axe or Lighthouse checks passed (>90)
+- [ ] Unit tests for layout helpers (safe-area, clamp) and touch targets
+- [ ] E2E smoke test for plan generation happy path + streaming fallback
 
 **Release & rollback plan**
 
-* Feature flag streaming and iOS theme. Gradually enable for 1% -> 10% -> 50% of users.
-* Monitor `plan_acceptance_rate`, `plan_generation_latency`, `llm_cost_per_plan`.
-* If plan_acceptance_rate drops by >10% in 24 hours, roll back flag.
+- Feature flag streaming and iOS theme. Gradually enable for 1% -> 10% -> 50% of users.
+- Monitor `plan_acceptance_rate`, `plan_generation_latency`, `llm_cost_per_plan`.
+- If plan_acceptance_rate drops by >10% in 24 hours, roll back flag.
 
 ---
 
@@ -178,34 +165,37 @@ FitBridge is an AI‑powered fitness app that delivers personalized workout and 
 
 ```css
 :root {
-  --color-bg: #0b0b0d;       /* deep black */
-  --color-card: #0f1113;     /* card dark */
-  --color-primary: #a9ff76;  /* lime accent */
-  --color-accent: #6be8ff;   /* complementary */
-  --color-muted: #a3a3a6;    /* labels */
+  --color-bg: #0b0b0d; /* deep black */
+  --color-card: #0f1113; /* card dark */
+  --color-primary: #a9ff76; /* lime accent */
+  --color-accent: #6be8ff; /* complementary */
+  --color-muted: #a3a3a6; /* labels */
   --radius-card: 12px;
-  --space-xs: 4px; --space-sm: 8px; --space-md: 16px; --space-lg: 24px;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
   --font-family: 'SF Pro Text', system-ui, -apple-system, 'Segoe UI', Roboto;
 }
 ```
 
 **Typography scale (mobile)**
 
-* Title Large: 28px (700)
-* Heading: 18–20px (600)
-* Body: 14–16px (400)
-* Small: 12px (400)
+- Title Large: 28px (700)
+- Heading: 18–20px (600)
+- Body: 14–16px (400)
+- Small: 12px (400)
 
 ---
 
 ## 9. Acceptance criteria (what "done" looks like)
 
-* All UI screens render without truncation on iPhone 12 / Pixel 4 / Samsung S series in portrait.
-* Primary CTAs are >=48×48 touch area.
-* Bottom nav no longer overlaps OS gesture area; uses safe area inset.
-* Plan generation supports progressive reveal; skeletons show while sections load.
-* No visual regression in desktop web flows.
-* No changes to server‑side API contract required for rollout.
+- All UI screens render without truncation on iPhone 12 / Pixel 4 / Samsung S series in portrait.
+- Primary CTAs are >=48×48 touch area.
+- Bottom nav no longer overlaps OS gesture area; uses safe area inset.
+- Plan generation supports progressive reveal; skeletons show while sections load.
+- No visual regression in desktop web flows.
+- No changes to server‑side API contract required for rollout.
 
 ---
 
@@ -265,4 +255,4 @@ Return format: Provide a single PR URL or a patch bundle with a README that desc
 
 ---
 
-*End of MD file 
+\*End of MD file
