@@ -412,7 +412,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
 
-**Built with ❤️ for the next gen evaluation 
+Built with ❤️ for the next gen evolution ⌨️
 [![GitHub Stars](https://img.shields.io/github/stars/your-org/fitbridge?style=social)](https://github.com/your-org/fitbridge)
 
 </div>
