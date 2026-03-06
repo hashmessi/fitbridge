@@ -404,15 +404,6 @@ fitbridge/
 
 ---
 
-## 👥 Team
-
-| Name              | Role                 | Contribution                          |
-| ----------------- | -------------------- | ------------------------------------- |
-| **[Your Name]**   | Full Stack Developer | Architecture, AI Integration, Backend |
-| **[Team Member]** | Frontend Developer   | UI/UX, React Components               |
-
----
-
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -421,8 +412,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
 
-**Built with ❤️ for the Gen AI National Hackathon 2026**
-
+**Built with ❤️ for the next gen evaluation 
 [![GitHub Stars](https://img.shields.io/github/stars/your-org/fitbridge?style=social)](https://github.com/your-org/fitbridge)
 
 </div>
